@@ -1,0 +1,7 @@
+git configs.txt
+.vscode
+example
+*.exe
+*.elf
+test
+.trash
