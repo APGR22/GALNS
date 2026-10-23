@@ -1,0 +1,21 @@
+#ifndef _GALNS_IO_H_
+#define _GALNS_IO_H_
+
+#include <stdio.h>
+
+typedef enum GALNS_IO_OPENMODE
+{
+    GALNS_IO_OPENMODE_NEW,
+    GALNS_IO_OPENMODE_LOAD,
+} GALNS_IO_OPENMODE;
+
+typedef struct GALNS_IOInterface
+{
+    int (* open)(const char *filename, GALNS_IO_OPENMODE mode);
+    int (* read)(off64_t offset, void *dst, size_t size);
+    int (* write)(off64_t offset, void *src, size_t size);
+    ssize_t (* size)();
+    int (* close)();
+} GALNS_IOInterface;
+
+#endif
