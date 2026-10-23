@@ -12,5 +12,5 @@ options = \
 	-O2
 
 main:
-# 	https://stackoverflow.com/questions/9967105/suppress-echo-of-command-invocation-in-makefile
+# 	https://stackoverflow.com/a/9967125/22880994
 	${compiler} -o ${output-file} ${src-files} -I${include-folder} ${options}
