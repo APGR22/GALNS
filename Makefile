@@ -6,7 +6,8 @@ main-file = test/main.c
 output-file = bin/main
 
 src-files = ${main-file}\
-	src/galns.c
+	src/galns.c\
+	src/debug.c
 
 options = \
 	-O2
