@@ -1,0 +1,16 @@
+compiler = gcc
+
+include-folder = ./include
+main-file = test/main.c
+
+output-file = bin/main
+
+src-files = ${main-file}\
+	src/galns.c
+
+options = \
+	-O2
+
+main:
+# 	https://stackoverflow.com/questions/9967105/suppress-echo-of-command-invocation-in-makefile
+	${compiler} -o ${output-file} ${src-files} -I${include-folder} ${options}

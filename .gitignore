@@ -3,5 +3,5 @@ git configs.txt
 example
 *.exe
 *.elf
-test
 .trash
+configs.txt
