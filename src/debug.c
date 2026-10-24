@@ -55,6 +55,8 @@ int GALNS_SetErrorMsg(const char *msg)
 
 const char *GALNS_GetErrorMsg()
 {
+    if (!__galns_debug_msg) return "Haven't done GALNS_Init()";
+
     return __galns_debug_msg;
 }
 
