@@ -12,8 +12,8 @@ typedef enum GALNS_IO_OPENMODE
 typedef struct GALNS_IOInterface
 {
     int (* open)(const char *filename, GALNS_IO_OPENMODE mode);
-    int (* read)(off64_t offset, void *dst, size_t size);
-    int (* write)(off64_t offset, void *src, size_t size);
+    ssize_t (* read)(off64_t offset, void *dst, size_t size);
+    ssize_t (* write)(off64_t offset, void *src, size_t size);
     ssize_t (* size)();
     int (* close)();
 } GALNS_IOInterface;
