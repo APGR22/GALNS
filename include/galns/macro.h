@@ -27,4 +27,8 @@
 #   define GALNS_API
 #endif
 
+#define GALNS_VERSION_MAJOR 1
+#define GALNS_VERSION_MINOR 0
+#define GALNS_VERSION_PATCH 0
+
 #endif

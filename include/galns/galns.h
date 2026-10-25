@@ -4,6 +4,7 @@
 #include "macro.h"
 #include "debug.h"
 #include "io.h"
+#include "nodesystem/nodesystem.h"
 
 GALNS_API int GALNS_Init();
 GALNS_API void GALNS_Quit();

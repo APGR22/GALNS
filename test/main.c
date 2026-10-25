@@ -66,6 +66,26 @@ int main()
     io_stream.size = _io_size;
     io_stream.close = _io_close;
 
+    puts("LOG: Create Nodesystem");
+
+    GALNS_Nodesystem *nodesystem = GALNS_CreateNodesystem(
+        &io_stream,
+        ".dumptest/test.galns",
+        1,
+        1,
+        1
+    );
+    if (!nodesystem)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        return -1;
+    }
+
+    puts("LOG: Release Nodesystem");
+
+    GALNS_ReleaseNodesystem(nodesystem);
+
     puts("LOG: Quit");
     GALNS_Quit();
 
