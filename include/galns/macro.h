@@ -31,4 +31,6 @@
 #define GALNS_VERSION_MINOR 0
 #define GALNS_VERSION_PATCH 0
 
+#define GALNS_HASH_SIZE 32
+
 #endif

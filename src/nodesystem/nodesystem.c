@@ -87,6 +87,7 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Nodesyst
     /* INIT */
 
     int ret = 1;
+    unsigned char buffer[EVP_MAX_MD_SIZE] = {0};
     unsigned int length = 0;
 
     /* CODE */
@@ -109,8 +110,10 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Nodesyst
     ret = EVP_DigestUpdate(ctx, &(nodesystem->header.end_node_index),                 sizeof(nodesystem->header.end_node_index)               );
     if (ret != 1) goto error;
 
-    ret = EVP_DigestFinal_ex(ctx, dst, &length);
+    ret = EVP_DigestFinal_ex(ctx, buffer, &length);
     if (ret != 1) goto error;
+
+    memcpy(dst, buffer, GALNS_HASH_SIZE);
 
     /* CLEANUP */
 

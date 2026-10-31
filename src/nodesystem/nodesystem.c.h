@@ -4,12 +4,13 @@
 #include <galns/nodesystem/nodesystem.h>
 #include <galns/type.h>
 #include <galns/io.h>
+#include <galns/macro.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 typedef struct GALNS_Internal_NodesystemHeader
 {
-    unsigned char header_hash[EVP_MAX_MD_SIZE];
+    unsigned char header_hash[GALNS_HASH_SIZE];
 
     uint32_t end_node_index;
 
