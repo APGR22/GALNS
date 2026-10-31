@@ -4,8 +4,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <openssl/evp.h>
 #include "nodesystem.c.h"
 #include "../debug.c.h"
+#include "../galns.c.h"
 
 size_t __GALNS_Internal_NodesystemHeaderSize()
 {
@@ -74,6 +76,59 @@ int __GALNS_Internal_NodesystemHeader2Bin(void *dst, GALNS_Nodesystem *nodesyste
     return 0;
 }
 
+ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Nodesystem *nodesystem)
+{
+    if (!dst) return -1;
+    if (!nodesystem) return -2;
+
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    if (!ctx) return -3;
+
+    /* INIT */
+
+    int ret = 1;
+    unsigned int length = 0;
+
+    /* CODE */
+
+    ret = EVP_DigestInit_ex2(ctx, __galns_hash_md, NULL);
+    if (ret != 1) goto error;
+
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.version),                        sizeof(nodesystem->header.version)                      );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.is_little_endian),               sizeof(nodesystem->header.is_little_endian)             );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_usercustomflags_size),  sizeof(nodesystem->header.max_node_usercustomflags_size));
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_name_size),             sizeof(nodesystem->header.max_node_name_size)           );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_data_size),             sizeof(nodesystem->header.max_node_data_size)           );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.node_size),                      sizeof(nodesystem->header.node_size)                    );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.end_node_index),                 sizeof(nodesystem->header.end_node_index)               );
+    if (ret != 1) goto error;
+
+    ret = EVP_DigestFinal_ex(ctx, dst, &length);
+    if (ret != 1) goto error;
+
+    /* CLEANUP */
+
+    EVP_MD_CTX_free(ctx);
+
+    /* RETURN IF SUCCESS */
+
+    return length;
+
+    /* ERROR */
+
+    error:;
+
+    if (ctx) EVP_MD_CTX_free(ctx);
+
+    return -4; // -4 means failed to digest
+}
+
 GALNS_Nodesystem *GALNS_CreateNodesystem(
     const GALNS_IOInterface *io_stream,
     const char *filename,
@@ -112,7 +167,9 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.max_node_data_size = node_data_size;
     nodesystem->header.node_size = 0; // currently not-defined
     nodesystem->header.end_node_index = 0;
-    nodesystem->header.header_hash = 0; // currently not-defined
+
+    if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, nodesystem) <= 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
 
     __GALNS_Internal_NodesystemHeader2Bin(bin, nodesystem);
 

@@ -9,8 +9,9 @@
 
 typedef struct GALNS_Internal_NodesystemHeader
 {
+    unsigned char header_hash[EVP_MAX_MD_SIZE];
+
     uint32_t end_node_index;
-    uint32_t header_hash;
 
     GALNS_Version version;
 
