@@ -44,6 +44,15 @@ ssize_t _io_size()
     return ftell(__io_file);
 }
 
+ssize_t _io_set_eof(uint64_t length)
+{
+    if (fseek(__io_file, length-1, SEEK_SET) < 0) return -1;
+
+    if (fputc(0, __io_file) < 0) return -2;
+
+    return ftell(__io_file);
+}
+
 int _io_close()
 {
     return fclose(__io_file);
@@ -64,26 +73,43 @@ int main()
     io_stream.read = _io_read;
     io_stream.write = _io_write;
     io_stream.size = _io_size;
+    io_stream.set_eof = _io_set_eof;
     io_stream.close = _io_close;
 
     puts("LOG: Create Nodesystem");
-
     GALNS_Nodesystem *nodesystem = GALNS_CreateNodesystem(
         &io_stream,
         ".dumptest/test.galns",
-        1,
-        1,
-        1
+        256,
+        512,
+        32
     );
     if (!nodesystem)
     {
         printf("ERROR: %s\n", GALNS_GetErrorMsg());
 
+        GALNS_Quit();
         return -1;
     }
 
-    puts("LOG: Release Nodesystem");
+    puts("LOG: Create Node");
+    int64_t new_node_count = GALNS_CreateNodes(nodesystem, 2, NULL);
+    printf("Test: Node count is %lld\n", new_node_count);
 
+    puts("LOG: Open Node 0");
+    GALNS_Nodestream *node0 = GALNS_OpenNode(nodesystem, 0);
+    if (!node0)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
+    puts("LOG: Close Node 0");
+    GALNS_CloseNode(node0);
+
+    puts("LOG: Release Nodesystem");
     GALNS_ReleaseNodesystem(nodesystem);
 
     puts("LOG: Quit");

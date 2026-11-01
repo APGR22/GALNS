@@ -8,11 +8,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define GALNS_INTERNAL_MAX_NODESYSTEM_HEADER 512
+
 typedef struct GALNS_Internal_NodesystemHeader
 {
     unsigned char header_hash[GALNS_HASH_SIZE];
 
-    uint32_t end_node_index;
+    GALNS_NodeIndex end_node_index;
 
     GALNS_Version version;
 

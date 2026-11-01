@@ -6,6 +6,7 @@
 #include <string.h>
 #include <openssl/evp.h>
 #include "nodesystem.c.h"
+#include "nodestream.c.h"
 #include "../debug.c.h"
 #include "../galns.c.h"
 
@@ -31,7 +32,7 @@ int __GALNS_Internal_NodesystemHeader2Bin(void *dst, GALNS_Nodesystem *nodesyste
     if (!nodesystem) return -2;
 
     off_t offset = 0;
-    size16_t member_size = 0;
+    size8_t member_size = 0;
 
     member_size = sizeof(nodesystem->header.version.major);
     memcpy(dst + offset, &(nodesystem->header.version.major), member_size);
@@ -168,7 +169,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.max_node_usercustomflags_size = node_usercustomflags_size;
     nodesystem->header.max_node_name_size = node_name_size;
     nodesystem->header.max_node_data_size = node_data_size;
-    nodesystem->header.node_size = 0; // currently not-defined
+    nodesystem->header.node_size = _GALNS_Internal_NodeSize(nodesystem);
     nodesystem->header.end_node_index = 0;
 
     if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, nodesystem) <= 0)
@@ -178,6 +179,9 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
 
     if (io_stream->write(0, bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Nodesystem header", error);
+
+    if (io_stream->set_eof(GALNS_INTERNAL_MAX_NODESYSTEM_HEADER) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to set EOF", error);
 
     /* CLEANUP */
 
