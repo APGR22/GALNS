@@ -1,21 +1,31 @@
 compiler = gcc
 
-include_folder = ./include
-main_file = test/main.c
+include_folder := ./include
+main_file := test/main.c
 
-output_file = bin/main
+# https://zenn.dev/atsushifx/articles/devtools-make-mutiplatform
+ifeq ($(OS),Windows_NT)
+	output_file := bin/main.exe
+else
+	UNAME_OS := $(shell uname -s)
+	ifeq ($(UNAME_OS),Linux)
+		output_file := bin/main.elf
+	else
+		output_file := bin/main
+	endif
+endif
 
-src_files = ${main_file}\
+src_files := ${main_file}\
 	src/galns.c\
 	src/debug.c\
 	src/system.c\
 	src/nodesystem/nodesystem.c\
 	src/nodesystem/nodestream.c
 
-options = \
+options := \
 	-O2
 
-libs = \
+libs := \
 	-lssl\
 	-lcrypto
 

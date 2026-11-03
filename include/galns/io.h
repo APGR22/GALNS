@@ -1,6 +1,8 @@
 #ifndef _GALNS_IO_H_
 #define _GALNS_IO_H_
 
+#define _LARGEFILE64_SOURCE
+
 #include <stdint.h>
 #include <sys/types.h>
 
