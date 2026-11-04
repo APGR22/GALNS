@@ -36,6 +36,8 @@ GALNS_API GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream);
 GALNS_API int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig);
 GALNS_API void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig);
 
+GALNS_API int GALNS_SyncNode(GALNS_Nodestream *nodestream);
+
 GALNS_API void GALNS_CloseNode(GALNS_Nodestream *nodestream);
 
 #endif

@@ -4,7 +4,9 @@
 #include "macro.h"
 
 #ifdef GALNS_PLATFORM_LINUX
-#   define _LARGEFILE64_SOURCE
+#   ifndef _LARGEFILE64_SOURCE
+#       define _LARGEFILE64_SOURCE
+#   endif
 #endif
 
 #include <stdint.h>

@@ -169,6 +169,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
     nodestream->nodesystem = nodesystem;
+    nodestream->node.index = node_index;
     nodestream->node.name = node_name;
     nodestream->node.data = node_data;
     nodestream->node.flags = node_flags;
@@ -293,6 +294,32 @@ void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig)
     if (nodeconfig->flags) free(nodeconfig->flags);
 
     free(nodeconfig);
+}
+
+int GALNS_SyncNode(GALNS_Nodestream *nodestream)
+{
+    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
+    if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
+
+    void *bin = NULL;
+    size_t node_size = nodestream->nodesystem->header.node_size;
+    off64_t offset = GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodestream->node.index * node_size);
+
+    bin = malloc(node_size);
+    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+
+    __GALNS_Internal_Node2Bin(bin, nodestream);
+
+    if (nodestream->nodesystem->io_stream.write(offset, bin, node_size) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Node to IO", error);
+
+    return 0;
+
+    error:;
+
+    if (bin) free(bin);
+
+    return -100;
 }
 
 void GALNS_CloseNode(GALNS_Nodestream *nodestream)

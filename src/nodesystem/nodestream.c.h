@@ -8,12 +8,14 @@
 
 typedef struct GALNS_Node
 {
+    unsigned char data_hash[GALNS_HASH_SIZE];
+
     char *name;
     void *data;
     void *flags;
 
+    GALNS_NodeIndex index;
     uint32_t system_flags;
-    unsigned char data_hash[GALNS_HASH_SIZE];
     GALNS_NodeIndex next_node_alloc_index;
 
     size16_t data_size;

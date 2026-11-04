@@ -119,6 +119,15 @@ int main()
     puts("LOG: Release Node Config");
     GALNS_ReleaseNodeConfig(node0_config);
 
+    puts("LOG: Sync Node to IO");
+    if (GALNS_SyncNode(node0) < 0)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
     puts("LOG: Close Node 0");
     GALNS_CloseNode(node0);
 

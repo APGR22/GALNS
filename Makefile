@@ -3,6 +3,8 @@ compiler = gcc
 include_folder := ./include
 main_file := test/main.c
 
+macro =
+
 # https://zenn.dev/atsushifx/articles/devtools-make-mutiplatform
 ifeq ($(OS),Windows_NT)
 	output_file := bin/main.exe
@@ -10,6 +12,7 @@ else
 	UNAME_OS := $(shell uname -s)
 	ifeq ($(UNAME_OS),Linux)
 		output_file := bin/main.elf
+		macro += -D_LARGEFILE64_SOURCE
 	else
 		output_file := bin/main
 	endif
@@ -31,4 +34,4 @@ libs := \
 
 main:
 # 	https://stackoverflow.com/a/9967125/22880994
-	${compiler} -o ${output_file} ${src_files} -I${include_folder} ${options} ${libs}
+	${compiler} -o ${output_file} ${src_files} -I${include_folder} ${options} ${libs} ${macro}
