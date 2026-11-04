@@ -1,5 +1,6 @@
 #include <galns/galns.h>
 #include <stdio.h>
+#include <string.h>
 
 FILE *__io_file = NULL;
 
@@ -105,6 +106,18 @@ int main()
         GALNS_Quit();
         return -1;
     }
+
+    puts("LOG: Get Node Config");
+    GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
+
+    memcpy(node0_config->name, "Root Node", sizeof("Root Node"));
+    printf("Test: Set Node 0 name to \"%s\"\n", node0_config->name);
+
+    puts("LOG: Set Node Config");
+    GALNS_SetNodeConfig(node0, node0_config);
+
+    puts("LOG: Release Node Config");
+    GALNS_ReleaseNodeConfig(node0_config);
 
     puts("LOG: Close Node 0");
     GALNS_CloseNode(node0);

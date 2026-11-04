@@ -156,22 +156,22 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     nodestream = malloc(sizeof(GALNS_Nodestream));
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream", error);
 
-    node_flags = malloc(nodesystem->header.max_node_flags_size);
-    if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream user custom flags", error);
-
     node_name = malloc(nodesystem->header.max_node_name_size);
     if (!node_name) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream name", error);
 
     node_data = malloc(nodesystem->header.max_node_data_size);
     if (!node_data) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream data", error);
 
+    node_flags = malloc(nodesystem->header.max_node_flags_size);
+    if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream flags", error);
+
     bin = malloc(bin_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
     nodestream->nodesystem = nodesystem;
-    nodestream->node.flags = node_flags;
     nodestream->node.name = node_name;
     nodestream->node.data = node_data;
+    nodestream->node.flags = node_flags;
 
     if (nodesystem->io_stream.read(GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodesystem->header.node_size * node_index), bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read Node from IO", error);
@@ -197,6 +197,102 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     if (bin) free(bin);
 
     return NULL;
+}
+
+GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
+{
+    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", NULL);
+    if (!(nodestream->nodesystem)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", NULL);
+
+    /* INIT */
+
+    GALNS_NodeConfig *nodeconfig = NULL;
+
+    char *node_name = NULL;
+    void *node_data = NULL;
+    void *node_flags = NULL;
+
+    size16_t name_mem_size = nodestream->nodesystem->header.max_node_name_size;
+    size16_t data_mem_size = nodestream->nodesystem->header.max_node_data_size;
+    size16_t flags_mem_size = nodestream->nodesystem->header.max_node_flags_size;
+
+    size16_t data_size = nodestream->node.data_size;
+
+    /* CODE */
+
+    nodeconfig = malloc(sizeof(GALNS_NodeConfig));
+    if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node config", error);
+
+    node_name = malloc(name_mem_size);
+    if (!node_name) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node name", error);
+
+    node_data = malloc(data_mem_size);
+    if (!node_data) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node data", error);
+
+    node_flags = malloc(flags_mem_size);
+    if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node flags", error);
+
+    memcpy(node_name, nodestream->node.name, name_mem_size);
+    memcpy(node_data, nodestream->node.data, data_size);
+    memcpy(node_flags, nodestream->node.flags, flags_mem_size);
+
+    /* --- INIT CONST */
+    GALNS_NodeConfig nodeconfig_cache = {
+        .name = node_name,
+        .data = node_data,
+        .flags = node_flags,
+
+        .name_mem_size = name_mem_size,
+        .data_mem_size = data_mem_size,
+        .flags_mem_size = flags_mem_size,
+
+        .data_size = data_size
+    };
+
+    memcpy(nodeconfig, &nodeconfig_cache, sizeof(GALNS_NodeConfig));
+
+    /* RETURN IF SUCCESS */
+
+    return nodeconfig;
+
+    error:;
+
+    if (nodeconfig) free(nodeconfig);
+    if (node_name) free(node_name);
+    if (node_data) free(node_data);
+    if (node_flags) free(node_flags);
+
+    return NULL;
+}
+
+int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig)
+{
+    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
+    if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
+    if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodeconfig is NULL", -3);
+
+    size16_t data_size = nodeconfig->data_size;
+    if (data_size > nodestream->nodesystem->header.max_node_data_size)
+    {
+        data_size = nodestream->nodesystem->header.max_node_data_size;
+    }
+
+    memcpy(nodestream->node.name, nodeconfig->name, nodestream->nodesystem->header.max_node_name_size);
+    memcpy(nodestream->node.data, nodeconfig->data, data_size);
+    memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
+
+    return 0;
+}
+
+void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig)
+{
+    if (!nodeconfig) return;
+
+    if (nodeconfig->name) free(nodeconfig->name);
+    if (nodeconfig->data) free(nodeconfig->data);
+    if (nodeconfig->flags) free(nodeconfig->flags);
+
+    free(nodeconfig);
 }
 
 void GALNS_CloseNode(GALNS_Nodestream *nodestream)

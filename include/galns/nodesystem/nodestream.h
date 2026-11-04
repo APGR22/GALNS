@@ -9,12 +9,33 @@
 
 typedef struct GALNS_Nodestream GALNS_Nodestream;
 
+typedef struct GALNS_NodeConfig
+{
+    char *const name;
+    void *const data;
+    void *const flags;
+
+    const size16_t name_mem_size;
+    const size16_t data_mem_size;
+    const size16_t flags_mem_size;
+
+    size16_t data_size;
+} GALNS_NodeConfig;
+
 /**
  * @param dst_result The length depends to the @p `maxcount` . It may be NULL
  * @return Total nodes those successed to be created
  */
 GALNS_API int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS_NodeIndex *dst_result);
 GALNS_API GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex node_index);
+
+/**
+ * @return GALNS_NodeConfig must be freed with `GALNS_ReleaseNodeConfig()`
+ */
+GALNS_API GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream);
+GALNS_API int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig);
+GALNS_API void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig);
+
 GALNS_API void GALNS_CloseNode(GALNS_Nodestream *nodestream);
 
 #endif

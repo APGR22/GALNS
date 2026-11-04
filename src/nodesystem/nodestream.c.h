@@ -8,15 +8,15 @@
 
 typedef struct GALNS_Node
 {
+    char *name;
+    void *data;
+    void *flags;
+
     uint32_t system_flags;
     unsigned char data_hash[GALNS_HASH_SIZE];
     GALNS_NodeIndex next_node_alloc_index;
 
     size16_t data_size;
-
-    unsigned char *flags;
-    char *name;
-    void *data;
 } GALNS_Node;
 
 struct GALNS_Nodestream
