@@ -2,10 +2,34 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+#   include <fcntl.h>
+#   include <unistd.h>
+#   include <sys/stat.h>
+
+int __io_fd = -1;
+#else
 FILE *__io_file = NULL;
+#endif
 
 int _io_open(const char *filename, GALNS_IO_OPENMODE mode)
 {
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+    int flags = O_LARGEFILE | O_CREAT | O_RDWR;
+    if (mode == GALNS_IO_OPENMODE_NEW)
+    {
+        flags |= O_TRUNC;
+    }
+
+    int fd_temp = open64(filename, flags, S_IRWXU | S_IRWXG | S_IRWXO);
+    if (fd_temp < 0) return -1;
+
+    __io_fd = fd_temp;
+
+    return 0;
+#else
     FILE *temp = NULL;
 
     if (mode == GALNS_IO_OPENMODE_NEW)
@@ -22,41 +46,70 @@ int _io_open(const char *filename, GALNS_IO_OPENMODE mode)
     __io_file = temp;
 
     return 0;
+#endif
 }
 
 ssize_t _io_read(off64_t offset, void *dst, size_t size)
 {
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+    return pread64(__io_fd, dst, size, offset);
+#else
     if (fseek(__io_file, offset, SEEK_SET) < 0) return -1;
 
     return fread(dst, sizeof(unsigned char), size, __io_file);
+#endif
 }
 
 ssize_t _io_write(off64_t offset, void *src, size_t size)
 {
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+    return pwrite64(__io_fd, src, size, offset);
+#else
     if (fseek(__io_file, offset, SEEK_SET) < 0) return -1;
 
     return fwrite(src, sizeof(unsigned char), size, __io_file);
+#endif
 }
 
 ssize_t _io_size()
 {
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+    struct stat64 fd_stats;
+    if (fstat64(__io_fd, &fd_stats) < 0) return -1;
+
+    return fd_stats.st_size;
+#else
     if (fseek(__io_file, 0, SEEK_END) < 0) return -1;
 
     return ftell(__io_file);
+#endif
 }
 
 ssize_t _io_set_eof(uint64_t length)
 {
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+    return ftruncate64(__io_fd, length);
+#else
     if (fseek(__io_file, length-1, SEEK_SET) < 0) return -1;
 
     if (fputc(0, __io_file) < 0) return -2;
 
     return ftell(__io_file);
+#endif
 }
 
 int _io_close()
 {
+#ifdef GALNS_PLATFORM_WINDOWS
+#elif defined(GALNS_PLATFORM_LINUX)
+    return close(__io_fd);
+#else
     return fclose(__io_file);
+#endif
 }
 
 int main()
