@@ -121,20 +121,11 @@ int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS
     if (left == 0) return 0;
     if (count > left) count = left;
 
-    ssize_t io_before_length = nodesystem->io_stream.size();
-    if (io_before_length < 0) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to get the IO size", -3);
-
-    size_t io_length = io_before_length + (nodesystem->header.node_size * count);
-    io_length = nodesystem->io_stream.set_eof(io_length);
-    if (io_length < 0) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to set EOF", -4);
-
-    uint64_t result_count = (io_length - io_before_length) / nodesystem->header.node_size;
-
     if (dst_result)
     {
         for (
             uint64_t index = 0, node_index = nodesystem->header.end_node_index;
-            index < result_count;
+            index < count;
             index++, node_index++
         )
         {
@@ -142,9 +133,9 @@ int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS
         }
     }
 
-    nodesystem->header.end_node_index += result_count;
+    nodesystem->header.end_node_index += count;
 
-    return result_count;
+    return count;
 }
 
 GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex node_index)

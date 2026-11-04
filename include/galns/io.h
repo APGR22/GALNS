@@ -23,7 +23,7 @@ typedef struct GALNS_IOInterface
     int (* open)(const char *filename, GALNS_IO_OPENMODE mode);
     ssize_t (* read)(off64_t offset, void *dst, size_t size);
     ssize_t (* write)(off64_t offset, void *src, size_t size);
-    ssize_t (* set_eof)(uint64_t length);
+    ssize_t (* set_eof)(uint64_t length); // currently unused
     ssize_t (* size)();
     int (* close)();
 } GALNS_IOInterface;
