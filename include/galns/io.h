@@ -1,7 +1,11 @@
 #ifndef _GALNS_IO_H_
 #define _GALNS_IO_H_
 
-#define _LARGEFILE64_SOURCE
+#include "macro.h"
+
+#ifdef GALNS_PLATFORM_LINUX
+#   define _LARGEFILE64_SOURCE
+#endif
 
 #include <stdint.h>
 #include <sys/types.h>

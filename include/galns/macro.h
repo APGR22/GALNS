@@ -3,11 +3,11 @@
 
 // https://stackoverflow.com/a/8249232/22880994
 #ifdef _WIN32
-#   define GALNS_PLATFORM_WINDOWS
+#   define GALNS_PLATFORM_WINDOWS 1
 #elif defined(__linux__)
-#   define GALNS_PLATFORM_LINUX
+#   define GALNS_PLATFORM_LINUX 1
 #elif defined(__APPLE__) || defined(__MACH__)
-#   define GALNS_PLATFORM_MACOS // currently, this is not supported yet
+#   define GALNS_PLATFORM_MACOS 1 // currently, this is not supported yet
 #endif
 
 // https://stackoverflow.com/a/32251412/22880994
