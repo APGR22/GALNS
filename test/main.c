@@ -134,6 +134,15 @@ int main()
     puts("LOG: Close Node 0");
     GALNS_CloseNode(node0);
 
+    puts("LOG: Sync Node Header to IO");
+    if (GALNS_SyncNodeHeader(nodesystem) < 0)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
     puts("LOG: Release Nodesystem");
     GALNS_ReleaseNodesystem(nodesystem);
 

@@ -198,6 +198,42 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     return NULL;
 }
 
+int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem)
+{
+    if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);
+
+    /* INIT */
+
+    void *bin = NULL;
+    size_t header_size = __GALNS_Internal_NodesystemHeaderSize();
+
+    /* CODE */
+
+    bin = malloc(header_size);
+    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+
+    __GALNS_Internal_NodesystemHeader2Bin(bin, nodesystem);
+
+    if (nodesystem->io_stream.write(0, bin, header_size) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Node Header to IO", error);
+
+    /* CLEANUP */
+
+    free(bin);
+
+    /* RETURN IF SUCCESS */
+
+    return 0;
+
+    /* ERROR */
+
+    error:;
+
+    if (bin) free(bin);
+
+    return -100;
+}
+
 void GALNS_ReleaseNodesystem(GALNS_Nodesystem *nodesystem)
 {
     if (!nodesystem) return;
