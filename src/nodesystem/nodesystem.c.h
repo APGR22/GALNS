@@ -18,7 +18,7 @@ typedef struct GALNS_Internal_NodesystemHeader
 
     GALNS_Version version;
 
-    size16_t max_node_usercustomflags_size;
+    size16_t max_node_flags_size;
     size16_t max_node_name_size;
     size16_t max_node_data_size;
     size16_t node_size;

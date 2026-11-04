@@ -12,7 +12,7 @@ GALNS_API GALNS_Nodesystem *GALNS_CreateNodesystem(
     const char *filename,
     size16_t node_name_size,
     size16_t node_data_size,
-    size16_t node_usercustomflags_size
+    size16_t node_flags_size
 );
 
 GALNS_API void GALNS_ReleaseNodesystem(GALNS_Nodesystem *nodesystem);

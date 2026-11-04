@@ -8,13 +8,13 @@
 
 typedef struct GALNS_Node
 {
-    uint32_t flags;
+    uint32_t system_flags;
     unsigned char data_hash[GALNS_HASH_SIZE];
     GALNS_NodeIndex next_node_alloc_index;
 
     size16_t data_size;
 
-    unsigned char *user_custom_flags;
+    unsigned char *flags;
     char *name;
     void *data;
 } GALNS_Node;

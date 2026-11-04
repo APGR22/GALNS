@@ -17,7 +17,7 @@ size_t __GALNS_Internal_NodesystemHeaderSize()
     return 0ULL
         + sizeof(dummy->header.version)
         + sizeof(dummy->header.is_little_endian)
-        + sizeof(dummy->header.max_node_usercustomflags_size)
+        + sizeof(dummy->header.max_node_flags_size)
         + sizeof(dummy->header.max_node_name_size)
         + sizeof(dummy->header.max_node_data_size)
         + sizeof(dummy->header.node_size)
@@ -50,8 +50,8 @@ int __GALNS_Internal_NodesystemHeader2Bin(void *dst, GALNS_Nodesystem *nodesyste
     memcpy(dst + offset, &(nodesystem->header.is_little_endian), member_size);
     offset += member_size;
 
-    member_size = sizeof(nodesystem->header.max_node_usercustomflags_size);
-    memcpy(dst + offset, &(nodesystem->header.max_node_usercustomflags_size), member_size);
+    member_size = sizeof(nodesystem->header.max_node_flags_size);
+    memcpy(dst + offset, &(nodesystem->header.max_node_flags_size), member_size);
     offset += member_size;
 
     member_size = sizeof(nodesystem->header.max_node_name_size);
@@ -100,7 +100,7 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Nodesyst
     if (ret != 1) goto error;
     ret = EVP_DigestUpdate(ctx, &(nodesystem->header.is_little_endian),               sizeof(nodesystem->header.is_little_endian)             );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_usercustomflags_size),  sizeof(nodesystem->header.max_node_usercustomflags_size));
+    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_flags_size),  sizeof(nodesystem->header.max_node_flags_size));
     if (ret != 1) goto error;
     ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_name_size),             sizeof(nodesystem->header.max_node_name_size)           );
     if (ret != 1) goto error;
@@ -138,7 +138,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     const char *filename,
     size16_t node_name_size,
     size16_t node_data_size,
-    size16_t node_usercustomflags_size
+    size16_t node_flags_size
 )
 {
     if (!io_stream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: io_stream is NULL", NULL);
@@ -166,7 +166,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.version.minor = GALNS_VERSION_MINOR;
     nodesystem->header.version.patch = GALNS_VERSION_PATCH;
     nodesystem->header.is_little_endian = GALNS_IsLittleEndian();
-    nodesystem->header.max_node_usercustomflags_size = node_usercustomflags_size;
+    nodesystem->header.max_node_flags_size = node_flags_size;
     nodesystem->header.max_node_name_size = node_name_size;
     nodesystem->header.max_node_data_size = node_data_size;
     nodesystem->header.node_size = _GALNS_Internal_NodeSize(nodesystem);

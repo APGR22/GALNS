@@ -14,12 +14,12 @@ int __GALNS_Internal_Node2Bin(void *dst, GALNS_Nodestream *nodestream)
     off_t offset = 0;
     size16_t member_size = 0;
 
-    member_size = sizeof(nodestream->node.flags);
-    memcpy(dst + offset, &(nodestream->node.flags), member_size);
+    member_size = sizeof(nodestream->node.system_flags);
+    memcpy(dst + offset, &(nodestream->node.system_flags), member_size);
     offset += member_size;
 
-    member_size = nodestream->nodesystem->header.max_node_usercustomflags_size;
-    memcpy(dst + offset, nodestream->node.user_custom_flags, member_size);
+    member_size = nodestream->nodesystem->header.max_node_flags_size;
+    memcpy(dst + offset, nodestream->node.flags, member_size);
     offset += member_size;
 
     member_size = nodestream->nodesystem->header.max_node_name_size;
@@ -52,12 +52,12 @@ int __GALNS_Internal_Bin2Node(GALNS_Nodestream *nodestream, void *src)
     off_t offset = 0;
     size16_t member_size = 0;
 
-    member_size = sizeof(nodestream->node.flags);
-    memcpy(&(nodestream->node.flags), src + offset, member_size);
+    member_size = sizeof(nodestream->node.system_flags);
+    memcpy(&(nodestream->node.system_flags), src + offset, member_size);
     offset += member_size;
 
-    member_size = nodestream->nodesystem->header.max_node_usercustomflags_size;
-    memcpy(nodestream->node.user_custom_flags, src + offset, member_size);
+    member_size = nodestream->nodesystem->header.max_node_flags_size;
+    memcpy(nodestream->node.flags, src + offset, member_size);
     offset += member_size;
 
     member_size = nodestream->nodesystem->header.max_node_name_size;
@@ -90,8 +90,8 @@ size_t _GALNS_Internal_NodeSize(GALNS_Nodesystem *nodesystem)
     GALNS_Nodestream *dummy = NULL;
 
     return 0
-    + sizeof(dummy->node.flags)
-    + (nodesystem->header.max_node_usercustomflags_size)
+    + sizeof(dummy->node.system_flags)
+    + (nodesystem->header.max_node_flags_size)
     + (nodesystem->header.max_node_name_size)
     + sizeof(dummy->node.data_size)
     + (nodesystem->header.max_node_data_size)
@@ -145,7 +145,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     /* INIT */
 
     GALNS_Nodestream *nodestream = NULL;
-    unsigned char *node_user_custom_flags = NULL;
+    unsigned char *node_flags = NULL;
     char *node_name = NULL;
     void *node_data = NULL;
     void *bin = NULL;
@@ -156,8 +156,8 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     nodestream = malloc(sizeof(GALNS_Nodestream));
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream", error);
 
-    node_user_custom_flags = malloc(nodesystem->header.max_node_usercustomflags_size);
-    if (!node_user_custom_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream user custom flags", error);
+    node_flags = malloc(nodesystem->header.max_node_flags_size);
+    if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream user custom flags", error);
 
     node_name = malloc(nodesystem->header.max_node_name_size);
     if (!node_name) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream name", error);
@@ -169,7 +169,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
     nodestream->nodesystem = nodesystem;
-    nodestream->node.user_custom_flags = node_user_custom_flags;
+    nodestream->node.flags = node_flags;
     nodestream->node.name = node_name;
     nodestream->node.data = node_data;
 
@@ -191,7 +191,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     error:;
 
     if (nodestream) free(nodestream);
-    if (node_user_custom_flags) free(node_user_custom_flags);
+    if (node_flags) free(node_flags);
     if (node_name) free(node_name);
     if (node_data) free(node_data);
     if (bin) free(bin);
@@ -203,7 +203,7 @@ void GALNS_CloseNode(GALNS_Nodestream *nodestream)
 {
     if (!nodestream) return;
 
-    free(nodestream->node.user_custom_flags);
+    free(nodestream->node.flags);
     free(nodestream->node.name);
     free(nodestream->node.data);
     free(nodestream);
