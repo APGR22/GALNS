@@ -94,6 +94,9 @@ int main()
     }
 
     puts("LOG: Create Node");
+    printf("Test: Get Node index is %lld\n", GALNS_CreateNode(nodesystem));
+
+    puts("LOG: Create Nodes (2)");
     int64_t new_node_count = GALNS_CreateNodes(nodesystem, 2, NULL);
     printf("Test: Node count is %lld\n", new_node_count);
 

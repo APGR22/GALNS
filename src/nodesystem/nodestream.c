@@ -100,6 +100,16 @@ size_t _GALNS_Internal_NodeSize(GALNS_Nodesystem *nodesystem)
     ;
 }
 
+GALNS_NodeIndexOrError GALNS_CreateNode(GALNS_Nodesystem *nodesystem)
+{
+    if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);
+
+    if (nodesystem->header.end_node_index == UINT32_MAX)
+        GALNS_INTERNAL_DEBUG_ERROR_RETURN("It has reach max node index", -2);
+
+    return nodesystem->header.end_node_index++;
+}
+
 int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS_NodeIndex *dst_result)
 {
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);

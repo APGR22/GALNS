@@ -22,6 +22,7 @@ typedef struct GALNS_NodeConfig
     size16_t data_size;
 } GALNS_NodeConfig;
 
+GALNS_API GALNS_NodeIndexOrError GALNS_CreateNode(GALNS_Nodesystem *nodesystem);
 /**
  * @param dst_result The length depends to the @p `maxcount` . It may be NULL
  * @return Total nodes those successed to be created

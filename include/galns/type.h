@@ -7,6 +7,7 @@ typedef unsigned short size16_t;
 typedef unsigned char size8_t;
 
 typedef unsigned int GALNS_NodeIndex;
+typedef long long int GALNS_NodeIndexOrError;
 
 typedef struct GALNS_Version
 {
