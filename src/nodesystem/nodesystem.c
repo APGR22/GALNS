@@ -180,6 +180,9 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     if (io_stream->write(0, bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Nodesystem header", error);
 
+    if (io_stream->set_eof(GALNS_INTERNAL_MAX_NODESYSTEM_HEADER) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to set EOF", error);
+
     /* CLEANUP */
 
     free(bin);

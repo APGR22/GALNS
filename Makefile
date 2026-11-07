@@ -5,9 +5,14 @@ main_file := test/main.c
 
 macro =
 
+libs = \
+	-lssl\
+	-lcrypto
+
 # https://zenn.dev/atsushifx/articles/devtools-make-mutiplatform
 ifeq ($(OS),Windows_NT)
 	output_file := bin/main.exe
+	libs += -lshlwapi
 else
 	UNAME_OS := $(shell uname -s)
 	ifeq ($(UNAME_OS),Linux)
@@ -27,10 +32,6 @@ src_files := ${main_file}\
 
 options := \
 	-O2
-
-libs := \
-	-lssl\
-	-lcrypto
 
 main:
 # 	https://stackoverflow.com/a/9967125/22880994
