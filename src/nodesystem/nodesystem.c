@@ -10,7 +10,7 @@
 #include "../debug.c.h"
 #include "../galns.c.h"
 
-size_t __GALNS_Internal_NodesystemHeaderSize()
+size_t __GALNS_Internal_GetNodesystemHeaderSize()
 {
     GALNS_Nodesystem *dummy = NULL;
 
@@ -26,7 +26,7 @@ size_t __GALNS_Internal_NodesystemHeaderSize()
     ;
 }
 
-int __GALNS_Internal_NodesystemHeader2Bin(void *dst, GALNS_Nodesystem *nodesystem)
+int __GALNS_Internal_ConvertNodesystemHeader2Bin(void *dst, GALNS_Nodesystem *nodesystem)
 {
     if (!dst) return -1;
     if (!nodesystem) return -2;
@@ -148,7 +148,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
 
     GALNS_Nodesystem *nodesystem = NULL;
     void *bin = NULL;
-    size_t bin_size = __GALNS_Internal_NodesystemHeaderSize();
+    size_t bin_size = __GALNS_Internal_GetNodesystemHeaderSize();
 
     /* CODE */
 
@@ -169,13 +169,13 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.max_node_flags_size = node_flags_size;
     nodesystem->header.max_node_name_size = node_name_size;
     nodesystem->header.max_node_data_size = node_data_size;
-    nodesystem->header.node_size = _GALNS_Internal_NodeSize(nodesystem);
+    nodesystem->header.node_size = _GALNS_Internal_GetNodeSize(nodesystem);
     nodesystem->header.end_node_index = 0;
 
     if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, nodesystem) <= 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
 
-    __GALNS_Internal_NodesystemHeader2Bin(bin, nodesystem);
+    __GALNS_Internal_ConvertNodesystemHeader2Bin(bin, nodesystem);
 
     if (io_stream->write(0, bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Nodesystem header", error);
@@ -208,14 +208,14 @@ int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem)
     /* INIT */
 
     void *bin = NULL;
-    size_t header_size = __GALNS_Internal_NodesystemHeaderSize();
+    size_t header_size = __GALNS_Internal_GetNodesystemHeaderSize();
 
     /* CODE */
 
     bin = malloc(header_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
-    __GALNS_Internal_NodesystemHeader2Bin(bin, nodesystem);
+    __GALNS_Internal_ConvertNodesystemHeader2Bin(bin, nodesystem);
 
     if (nodesystem->io_stream.write(0, bin, header_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Node Header to IO", error);

@@ -6,7 +6,7 @@
 #include "../debug.c.h"
 #include <stdio.h>
 
-int __GALNS_Internal_Node2Bin(void *dst, GALNS_Nodestream *nodestream)
+int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
 {
     if (!dst) return -1;
     if (!nodestream) return -2;
@@ -44,7 +44,7 @@ int __GALNS_Internal_Node2Bin(void *dst, GALNS_Nodestream *nodestream)
 
     return 0;
 }
-int __GALNS_Internal_Bin2Node(GALNS_Nodestream *nodestream, void *src)
+int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
 {
     if (!src) return -1;
     if (!nodestream) return -2;
@@ -83,7 +83,7 @@ int __GALNS_Internal_Bin2Node(GALNS_Nodestream *nodestream, void *src)
     return 0;
 }
 
-size_t _GALNS_Internal_NodeSize(GALNS_Nodesystem *nodesystem)
+size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem)
 {
     if (!nodesystem) return 0;
 
@@ -164,7 +164,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     char *node_name = NULL;
     void *node_data = NULL;
     void *bin = NULL;
-    size_t bin_size = _GALNS_Internal_NodeSize(nodesystem);
+    size_t bin_size = _GALNS_Internal_GetNodeSize(nodesystem);
 
     /* CODE */
 
@@ -192,7 +192,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     if (nodesystem->io_stream.read(GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodesystem->header.node_size * node_index), bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read Node from IO", error);
 
-    __GALNS_Internal_Bin2Node(nodestream, bin);
+    __GALNS_Internal_ConvertBin2Node(nodestream, bin);
 
     /* CLEANUP */
 
@@ -327,7 +327,7 @@ int GALNS_SyncNode(GALNS_Nodestream *nodestream)
     bin = malloc(node_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
-    __GALNS_Internal_Node2Bin(bin, nodestream);
+    __GALNS_Internal_ConvertNode2Bin(bin, nodestream);
 
     if (nodestream->nodesystem->io_stream.write(offset, bin, node_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Node to IO", error);

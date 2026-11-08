@@ -27,6 +27,6 @@ struct GALNS_Nodestream
     GALNS_Nodesystem *nodesystem;
 };
 
-size_t _GALNS_Internal_NodeSize(GALNS_Nodesystem *nodesystem);
+size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem);
 
 #endif
