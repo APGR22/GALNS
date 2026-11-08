@@ -9,7 +9,7 @@
 
 typedef struct GALNS_Node
 {
-    unsigned char data_hash[GALNS_HASH_SIZE];
+    unsigned char data_hash[GALNS_HASH_SIZE]; // currently unused
 
     GALNS_Timestamp created_at;
     GALNS_Timestamp modified_at;

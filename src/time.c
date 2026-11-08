@@ -1,5 +1,8 @@
 #include <galns/time.h>
 #include <galns/macro.h>
+#include <galns/type.h>
+#include <sys/types.h>
+#include <string.h>
 #include "time.c.h"
 #include "debug.c.h"
 
@@ -20,6 +23,83 @@ size_t _GALNS_Internal_GetTimestampSize()
     + sizeof(dummy->seconds)
     + sizeof(dummy->nanoseconds)
     ;
+}
+
+int _GALNS_Internal_ConvertTimestamp2Bin(void *dst, GALNS_Timestamp *timestamp)
+{
+    if (!dst) return -1;
+    if (!timestamp) return -2;
+
+    off_t offset = 0;
+    size8_t member_size = 0;
+
+    member_size = sizeof(timestamp->years);
+    memcpy(dst + offset, &(timestamp->years), member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->months);
+    memcpy(dst + offset, &(timestamp->months), member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->days);
+    memcpy(dst + offset, &(timestamp->days), member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->hours);
+    memcpy(dst + offset, &(timestamp->hours), member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->minutes);
+    memcpy(dst + offset, &(timestamp->minutes), member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->seconds);
+    memcpy(dst + offset, &(timestamp->seconds), member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->nanoseconds);
+    memcpy(dst + offset, &(timestamp->nanoseconds), member_size);
+    offset += member_size;
+
+    return 0;
+}
+int _GALNS_Internal_ConvertBin2Timestamp(GALNS_Timestamp *timestamp, void *src)
+{
+    if (!src) return -1;
+    if (!timestamp) return -2;
+
+    off_t offset = 0;
+    size8_t member_size = 0;
+
+    member_size = sizeof(timestamp->years);
+    memcpy(&(timestamp->years), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->months);
+    memcpy(&(timestamp->months), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->days);
+    memcpy(&(timestamp->days), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->hours);
+    memcpy(&(timestamp->hours), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->minutes);
+    memcpy(&(timestamp->minutes), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->seconds);
+    memcpy(&(timestamp->seconds), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(timestamp->nanoseconds);
+    memcpy(&(timestamp->nanoseconds), src + offset, member_size);
+    offset += member_size;
+
+    return 0;
 }
 
 int GALNS_GetTimestampNow(GALNS_Timestamp *dst_timestamp, int utc_offset_in_seconds)

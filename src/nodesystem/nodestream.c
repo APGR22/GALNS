@@ -42,13 +42,13 @@ int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
 
     member_size = _GALNS_Internal_GetTimestampSize();
 
-    memcpy(dst + offset, &(nodestream->node.created_at), member_size);
+    _GALNS_Internal_ConvertTimestamp2Bin(dst + offset, &(nodestream->node.created_at));
     offset += member_size;
 
-    memcpy(dst + offset, &(nodestream->node.modified_at), member_size);
+    _GALNS_Internal_ConvertTimestamp2Bin(dst + offset, &(nodestream->node.modified_at));
     offset += member_size;
 
-    memcpy(dst + offset, &(nodestream->node.accessed_at), member_size);
+    _GALNS_Internal_ConvertTimestamp2Bin(dst + offset, &(nodestream->node.accessed_at));
     offset += member_size;
 
 
@@ -93,13 +93,13 @@ int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
 
     member_size = _GALNS_Internal_GetTimestampSize();
 
-    memcpy(&(nodestream->node.created_at), src + offset, member_size);
+    _GALNS_Internal_ConvertBin2Timestamp(&(nodestream->node.created_at), src + offset);
     offset += member_size;
 
-    memcpy(&(nodestream->node.modified_at), src + offset, member_size);
+    _GALNS_Internal_ConvertBin2Timestamp(&(nodestream->node.modified_at), src + offset);
     offset += member_size;
 
-    memcpy(&(nodestream->node.accessed_at), src + offset, member_size);
+    _GALNS_Internal_ConvertBin2Timestamp(&(nodestream->node.accessed_at), src + offset);
     offset += member_size;
 
 

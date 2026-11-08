@@ -77,10 +77,61 @@ int __GALNS_Internal_ConvertNodesystemHeader2Bin(void *dst, GALNS_Nodesystem *no
     return 0;
 }
 
-ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Nodesystem *nodesystem)
+int __GALNS_Internal_ConvertBin2NodesystemHeader(GALNS_Nodesystem *nodesystem, void *src)
+{
+    if (!nodesystem) return -1;
+    if (!src) return -2;
+
+    off_t offset = 0;
+    size8_t member_size = 0;
+
+    member_size = sizeof(nodesystem->header.version.major);
+    memcpy(&(nodesystem->header.version.major), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.version.minor);
+    memcpy(&(nodesystem->header.version.minor), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.version.patch);
+    memcpy(&(nodesystem->header.version.patch), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.is_little_endian);
+    memcpy(&(nodesystem->header.is_little_endian), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.max_node_flags_size);
+    memcpy(&(nodesystem->header.max_node_flags_size), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.max_node_name_size);
+    memcpy(&(nodesystem->header.max_node_name_size), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.max_node_data_size);
+    memcpy(&(nodesystem->header.max_node_data_size), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.node_size);
+    memcpy(&(nodesystem->header.node_size), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.end_node_index);
+    memcpy(&(nodesystem->header.end_node_index), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.header_hash);
+    memcpy(&(nodesystem->header.header_hash), src + offset, member_size);
+    offset += member_size;
+
+    return 0;
+}
+
+ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Internal_NodesystemHeader *nodesystemheader)
 {
     if (!dst) return -1;
-    if (!nodesystem) return -2;
+    if (!nodesystemheader) return -2;
 
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     if (!ctx) return -3;
@@ -96,19 +147,19 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Nodesyst
     ret = EVP_DigestInit_ex2(ctx, __galns_hash_md, NULL);
     if (ret != 1) goto error;
 
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.version),                        sizeof(nodesystem->header.version)                      );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->version),                        sizeof(nodesystemheader->version)                      );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.is_little_endian),               sizeof(nodesystem->header.is_little_endian)             );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->is_little_endian),               sizeof(nodesystemheader->is_little_endian)             );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_flags_size),  sizeof(nodesystem->header.max_node_flags_size));
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_flags_size),  sizeof(nodesystemheader->max_node_flags_size));
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_name_size),             sizeof(nodesystem->header.max_node_name_size)           );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_name_size),             sizeof(nodesystemheader->max_node_name_size)           );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.max_node_data_size),             sizeof(nodesystem->header.max_node_data_size)           );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_data_size),             sizeof(nodesystemheader->max_node_data_size)           );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.node_size),                      sizeof(nodesystem->header.node_size)                    );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->node_size),                      sizeof(nodesystemheader->node_size)                    );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystem->header.end_node_index),                 sizeof(nodesystem->header.end_node_index)               );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->end_node_index),                 sizeof(nodesystemheader->end_node_index)               );
     if (ret != 1) goto error;
 
     ret = EVP_DigestFinal_ex(ctx, buffer, &length);
@@ -172,7 +223,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.node_size = _GALNS_Internal_GetNodeSize(nodesystem);
     nodesystem->header.end_node_index = 0;
 
-    if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, nodesystem) <= 0)
+    if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, &(nodesystem->header)) <= 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
 
     __GALNS_Internal_ConvertNodesystemHeader2Bin(bin, nodesystem);
@@ -201,6 +252,68 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     return NULL;
 }
 
+GALNS_Nodesystem *GALNS_LoadNodesystem(
+    const GALNS_IOInterface *io_stream,
+    const char *filename
+)
+{
+    if (!io_stream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: io_stream is NULL", NULL);
+    if (!filename) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: filename is NULL", NULL);
+
+    /* INIT */
+
+    GALNS_Nodesystem *nodesystem = NULL;
+    void *bin = NULL;
+    size16_t bin_size = __GALNS_Internal_GetNodesystemHeaderSize();
+    unsigned char *header_hash_verify = NULL;
+
+    /* CODE */
+
+    if (io_stream->open(filename, GALNS_IO_OPENMODE_LOAD) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to open IO stream", error);
+
+    nodesystem = malloc(sizeof(GALNS_Nodesystem));
+    if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc nodesystem", error);
+
+    bin = malloc(bin_size);
+    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+
+    header_hash_verify = malloc(GALNS_HASH_SIZE);
+    if (!header_hash_verify) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc hash to verify", error);
+
+    if (io_stream->read(0, bin, bin_size) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read Nodesystem header", error);
+
+    nodesystem->io_stream = *io_stream;
+
+    __GALNS_Internal_ConvertBin2NodesystemHeader(nodesystem, bin);
+
+    if (__GALNS_Internal_HashNodesystemHeader(header_hash_verify, &(nodesystem->header)) <= 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
+
+    if (memcmp(nodesystem->header.header_hash, header_hash_verify, GALNS_HASH_SIZE) != 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to verify Nodesystem header", error);
+
+    /* CLEANUP */
+
+    free(bin);
+    free(header_hash_verify);
+
+    /* RETURN IF SUCCESS */
+
+    return nodesystem;
+
+    /* ERROR */
+
+    error:;
+
+    if (nodesystem) free(nodesystem);
+    if (bin) free(bin);
+    if (header_hash_verify) free(header_hash_verify);
+
+    return NULL;
+}
+
 GALNS_NodeIndexOrError GALNS_GetEndNodeIndex(GALNS_Nodesystem *nodesystem)
 {
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);
@@ -221,6 +334,9 @@ int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem)
 
     bin = malloc(header_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+
+    if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, &(nodesystem->header)) <= 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
 
     __GALNS_Internal_ConvertNodesystemHeader2Bin(bin, nodesystem);
 
