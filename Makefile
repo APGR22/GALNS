@@ -27,6 +27,7 @@ src_files := ${main_file}\
 	src/galns.c\
 	src/debug.c\
 	src/system.c\
+	src/time.c\
 	src/nodesystem/nodesystem.c\
 	src/nodesystem/nodestream.c
 

@@ -1,10 +1,11 @@
 #include <galns/nodesystem/nodestream.h>
+#include <galns/time.h>
 #include <stdlib.h>
 #include <string.h>
 #include "nodestream.c.h"
 #include "nodesystem.c.h"
+#include "../time.c.h"
 #include "../debug.c.h"
-#include <stdio.h>
 
 int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
 {
@@ -37,6 +38,19 @@ int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
     member_size = sizeof(nodestream->node.data_hash);
     memcpy(dst + offset, nodestream->node.data_hash, member_size);
     offset += member_size;
+
+
+    member_size = _GALNS_Internal_GetTimestampSize();
+
+    memcpy(dst + offset, &(nodestream->node.created_at), member_size);
+    offset += member_size;
+
+    memcpy(dst + offset, &(nodestream->node.modified_at), member_size);
+    offset += member_size;
+
+    memcpy(dst + offset, &(nodestream->node.accessed_at), member_size);
+    offset += member_size;
+
 
     member_size = sizeof(nodestream->node.next_node_alloc_index);
     memcpy(dst + offset, &(nodestream->node.next_node_alloc_index), member_size);
@@ -76,6 +90,19 @@ int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
     memcpy(nodestream->node.data_hash, src + offset, member_size);
     offset += member_size;
 
+
+    member_size = _GALNS_Internal_GetTimestampSize();
+
+    memcpy(&(nodestream->node.created_at), src + offset, member_size);
+    offset += member_size;
+
+    memcpy(&(nodestream->node.modified_at), src + offset, member_size);
+    offset += member_size;
+
+    memcpy(&(nodestream->node.accessed_at), src + offset, member_size);
+    offset += member_size;
+
+
     member_size = sizeof(nodestream->node.next_node_alloc_index);
     memcpy(&(nodestream->node.next_node_alloc_index), src + offset, member_size);
     offset += member_size;
@@ -91,11 +118,14 @@ size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem)
 
     return 0
     + sizeof(dummy->node.system_flags)
-    + (nodesystem->header.max_node_flags_size)
-    + (nodesystem->header.max_node_name_size)
+    + (nodesystem->header.max_node_flags_size) // flags
+    + (nodesystem->header.max_node_name_size) // name
     + sizeof(dummy->node.data_size)
-    + (nodesystem->header.max_node_data_size)
+    + (nodesystem->header.max_node_data_size) // data
     + sizeof(dummy->node.data_hash)
+    + _GALNS_Internal_GetTimestampSize() // created_at
+    + _GALNS_Internal_GetTimestampSize() // modified_at
+    + _GALNS_Internal_GetTimestampSize() // accessed_at
     + sizeof(dummy->node.next_node_alloc_index)
     ;
 }
@@ -184,7 +214,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
     nodestream->nodesystem = nodesystem;
-    nodestream->node.index = node_index;
+    nodestream->index = node_index;
     nodestream->node.name = node_name;
     nodestream->node.data = node_data;
     nodestream->node.flags = node_flags;
@@ -257,6 +287,9 @@ GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
         .name = node_name,
         .data = node_data,
         .flags = node_flags,
+        .created_at = nodestream->node.created_at,
+        .modified_at = nodestream->node.modified_at,
+        .accessed_at = nodestream->node.accessed_at,
 
         .name_mem_size = name_mem_size,
         .data_mem_size = data_mem_size,
@@ -296,6 +329,10 @@ int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconf
     memcpy(nodestream->node.name, nodeconfig->name, nodestream->nodesystem->header.max_node_name_size);
     memcpy(nodestream->node.data, nodeconfig->data, data_size);
     memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
+    
+    nodestream->node.created_at = nodeconfig->created_at;
+    nodestream->node.modified_at = nodeconfig->modified_at;
+    nodestream->node.accessed_at = nodeconfig->accessed_at;
 
     return 0;
 }
@@ -320,7 +357,7 @@ int GALNS_SyncNode(GALNS_Nodestream *nodestream)
 
     void *bin = NULL;
     size_t node_size = nodestream->nodesystem->header.node_size;
-    off64_t offset = GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodestream->node.index * node_size);
+    off64_t offset = GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodestream->index * node_size);
 
     /* CODE */
 

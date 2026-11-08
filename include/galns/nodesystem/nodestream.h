@@ -4,6 +4,7 @@
 #include "nodesystem.h"
 #include "../macro.h"
 #include "../type.h"
+#include "../time.h"
 
 #define GALNS_NULL_NODE_INDEX 0
 
@@ -11,6 +12,10 @@ typedef struct GALNS_Nodestream GALNS_Nodestream;
 
 typedef struct GALNS_NodeConfig
 {
+    GALNS_Timestamp created_at;
+    GALNS_Timestamp modified_at;
+    GALNS_Timestamp accessed_at;
+
     char *const name;
     void *const data;
     void *const flags;
