@@ -10,14 +10,19 @@ libs = \
 
 # https://zenn.dev/atsushifx/articles/devtools-make-mutiplatform
 ifeq ($(OS),Windows_NT)
+	mkdir := mkdir
+
 	output_file_ext := .exe
 	libs += -lshlwapi
 else
 	UNAME_OS := $(shell uname -s)
 	ifeq ($(UNAME_OS),Linux)
+		mkdir := mkdir -p
+
 		output_file_ext := .elf
 		macro += -D_LARGEFILE64_SOURCE
 	else
+		mkdir := ''
 		output_file_ext := ''
 	endif
 endif
@@ -33,7 +38,19 @@ src_files := \
 options := \
 	-O2
 
-main:
+main: test_env
 # 	https://stackoverflow.com/a/9967125/22880994
 	${compiler} -o bin/main_create${output_file_ext} test/main_create.c ${src_files} -I${include_folder} ${options} ${libs} ${macro}
 	${compiler} -o bin/main_load${output_file_ext} test/main_load.c ${src_files} -I${include_folder} ${options} ${libs} ${macro}
+	bin/main_create${output_file_ext}
+	bin/main_load${output_file_ext}
+
+test_env:
+#	https://stackoverflow.com/a/20566812/22880994
+#	https://stackoverflow.com/a/47828799/22880994
+ifeq ("$(wildcard bin)","")
+	${mkdir} bin
+endif
+ifeq ("$(wildcard .dumptest)","")
+	${mkdir} .dumptest
+endif
