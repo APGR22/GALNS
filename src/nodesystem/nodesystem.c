@@ -201,6 +201,13 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     return NULL;
 }
 
+GALNS_NodeIndexOrError GALNS_GetEndNodeIndex(GALNS_Nodesystem *nodesystem)
+{
+    if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);
+
+    return nodesystem->header.end_node_index;
+}
+
 int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem)
 {
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);

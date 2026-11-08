@@ -15,6 +15,8 @@ GALNS_API GALNS_Nodesystem *GALNS_CreateNodesystem(
     size16_t node_flags_size
 );
 
+GALNS_API GALNS_NodeIndexOrError GALNS_GetEndNodeIndex(GALNS_Nodesystem *nodesystem);
+
 GALNS_API int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem);
 
 GALNS_API void GALNS_ReleaseNodesystem(GALNS_Nodesystem *nodesystem);
