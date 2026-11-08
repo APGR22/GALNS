@@ -6,7 +6,7 @@
 #include "../type.h"
 #include "../time.h"
 
-#define GALNS_NULL_NODE_INDEX 0
+#define GALNS_NULL_NEXT_ALLOC_NODE_INDEX 0
 
 typedef struct GALNS_Nodestream GALNS_Nodestream;
 
