@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "io.h"
 #include "time.h"
+#include "utility.h"
 #include "nodesystem/nodesystem.h"
 #include "nodesystem/nodestream.h"
 

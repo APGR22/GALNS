@@ -257,7 +257,7 @@ int main()
     puts("LOG: Get Node Config");
     GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
 
-    puts("LOG: Get timestamp from Node0");
+    puts("LOG: Get timestamp from Node 0");
 
     printf("Test: Created at %u:%u:%u.%u %u/%u/%u\n",
         node0_config->created_at.hours,
@@ -290,6 +290,45 @@ int main()
     );
 
     printf("Test: Get Node 0 name that is \"%s\"\n", node0_config->name);
+
+    puts("LOG: Get Node 0 data hash");
+    unsigned char data_hash_1_buffer[GALNS_HASH_SIZE] = {0};
+    if (GALNS_GetNodeDataHash(data_hash_1_buffer, node0) < 0)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
+    puts("Test: The hash is");
+    for (uint16_t index = 0; index < GALNS_HASH_SIZE; index++)
+    {
+        printf("%x", data_hash_1_buffer[index]);
+    }
+    putc('\n', stdout);
+
+    puts("LOG: Hash Node 0 data");
+    unsigned char data_hash_2_buffer[GALNS_HASH_SIZE] = {0};
+    if (GALNS_HashData(data_hash_2_buffer, node0_config->data, node0_config->data_mem_size) < 0)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
+    puts("Test: The hash is");
+    for (uint16_t index = 0; index < GALNS_HASH_SIZE; index++)
+    {
+        printf("%x", data_hash_2_buffer[index]);
+    }
+    putc('\n', stdout);
+
+    puts("LOG: Compare 2 hash to verify");
+    printf("Test: result is %s\n",
+        memcmp(data_hash_1_buffer, data_hash_2_buffer, GALNS_HASH_SIZE) == 0 ? "same" : "not same"
+    );
 
     puts("LOG: Release Node Config");
     GALNS_ReleaseNodeConfig(node0_config);
