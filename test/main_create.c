@@ -105,10 +105,11 @@ ssize_t _io_read(off64_t offset, void *dst, size_t size)
         }
 
         CloseHandle(overlapped_info.hEvent);
+        overlapped_info.hEvent = NULL;
     }
 
     DWORD read_size = 0;
-    if (!GetOverlappedResult(__io_handle, &overlapped_info, &read_size, FALSE)) return -4;
+    if (!GetOverlappedResult(__io_handle, &overlapped_info, &read_size, TRUE)) return -5;
 
     return overlapped_info.InternalHigh; // use ULONG_PTR instead
 #elif defined(GALNS_PLATFORM_LINUX)
@@ -145,10 +146,11 @@ ssize_t _io_write(off64_t offset, void *src, size_t size)
         }
 
         CloseHandle(overlapped_info.hEvent);
+        overlapped_info.hEvent = NULL;
     }
 
     DWORD written_size = 0;
-    if (!GetOverlappedResult(__io_handle, &overlapped_info, &written_size, FALSE)) return -4;
+    if (!GetOverlappedResult(__io_handle, &overlapped_info, &written_size, TRUE)) return -5;
 
     return overlapped_info.InternalHigh; // use ULONG_PTR instead
 #elif defined(GALNS_PLATFORM_LINUX)
