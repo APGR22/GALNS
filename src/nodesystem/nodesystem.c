@@ -21,7 +21,9 @@ size_t __GALNS_Internal_GetNodesystemHeaderSize()
         + sizeof(dummy->header.max_node_name_size)
         + sizeof(dummy->header.max_node_data_size)
         + sizeof(dummy->header.node_size)
+        + sizeof(dummy->header.metadata_size)
         + sizeof(dummy->header.end_node_index)
+        + GALNS_MAX_NODESYSTEM_METADATA_SIZE
         + sizeof(dummy->header.header_hash)
     ;
 }
@@ -32,7 +34,7 @@ int __GALNS_Internal_ConvertNodesystemHeader2Bin(void *dst, GALNS_Nodesystem *no
     if (!nodesystem) return -2;
 
     off_t offset = 0;
-    size8_t member_size = 0;
+    size16_t member_size = 0;
 
     member_size = sizeof(nodesystem->header.version.major);
     memcpy(dst + offset, &(nodesystem->header.version.major), member_size);
@@ -66,9 +68,17 @@ int __GALNS_Internal_ConvertNodesystemHeader2Bin(void *dst, GALNS_Nodesystem *no
     memcpy(dst + offset, &(nodesystem->header.node_size), member_size);
     offset += member_size;
 
+    member_size = sizeof(nodesystem->header.metadata_size);
+    memcpy(dst + offset, &(nodesystem->header.metadata_size), member_size);
+    offset += member_size;
+
     member_size = sizeof(nodesystem->header.end_node_index);
     memcpy(dst + offset, &(nodesystem->header.end_node_index), member_size);
     offset += member_size;
+
+    member_size = nodesystem->header.metadata_size;
+    memcpy(dst + offset, nodesystem->header.metadata, member_size);
+    offset += GALNS_MAX_NODESYSTEM_METADATA_SIZE;
 
     member_size = sizeof(nodesystem->header.header_hash);
     memcpy(dst + offset, &(nodesystem->header.header_hash), member_size);
@@ -83,7 +93,7 @@ int __GALNS_Internal_ConvertBin2NodesystemHeader(GALNS_Nodesystem *nodesystem, v
     if (!src) return -2;
 
     off_t offset = 0;
-    size8_t member_size = 0;
+    size16_t member_size = 0;
 
     member_size = sizeof(nodesystem->header.version.major);
     memcpy(&(nodesystem->header.version.major), src + offset, member_size);
@@ -117,9 +127,17 @@ int __GALNS_Internal_ConvertBin2NodesystemHeader(GALNS_Nodesystem *nodesystem, v
     memcpy(&(nodesystem->header.node_size), src + offset, member_size);
     offset += member_size;
 
+    member_size = sizeof(nodesystem->header.metadata_size);
+    memcpy(&(nodesystem->header.metadata_size), src + offset, member_size);
+    offset += member_size;
+
     member_size = sizeof(nodesystem->header.end_node_index);
     memcpy(&(nodesystem->header.end_node_index), src + offset, member_size);
     offset += member_size;
+
+    member_size = nodesystem->header.metadata_size;
+    memcpy(nodesystem->header.metadata, src + offset, member_size);
+    offset += GALNS_MAX_NODESYSTEM_METADATA_SIZE;
 
     member_size = sizeof(nodesystem->header.header_hash);
     memcpy(&(nodesystem->header.header_hash), src + offset, member_size);
@@ -147,19 +165,23 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Internal
     ret = EVP_DigestInit_ex2(ctx, __galns_hash_md, NULL);
     if (ret != 1) goto error;
 
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->version),                        sizeof(nodesystemheader->version)                      );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->version),               sizeof(nodesystemheader->version)               );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->is_little_endian),               sizeof(nodesystemheader->is_little_endian)             );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->is_little_endian),      sizeof(nodesystemheader->is_little_endian)      );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_flags_size),  sizeof(nodesystemheader->max_node_flags_size));
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_flags_size),   sizeof(nodesystemheader->max_node_flags_size)   );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_name_size),             sizeof(nodesystemheader->max_node_name_size)           );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_name_size),    sizeof(nodesystemheader->max_node_name_size)    );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_data_size),             sizeof(nodesystemheader->max_node_data_size)           );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_data_size),    sizeof(nodesystemheader->max_node_data_size)    );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->node_size),                      sizeof(nodesystemheader->node_size)                    );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->node_size),             sizeof(nodesystemheader->node_size)             );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->end_node_index),                 sizeof(nodesystemheader->end_node_index)               );
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->metadata_size),         sizeof(nodesystemheader->metadata_size)         );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->end_node_index),        sizeof(nodesystemheader->end_node_index)        );
+    if (ret != 1) goto error;
+    ret = EVP_DigestUpdate(ctx, nodesystemheader->metadata,                 nodesystemheader->metadata_size                 );
     if (ret != 1) goto error;
 
     ret = EVP_DigestFinal_ex(ctx, buffer, &length);
@@ -189,7 +211,8 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     const char *filename,
     size16_t node_name_size,
     size16_t node_data_size,
-    size16_t node_flags_size
+    size16_t node_flags_size,
+    size16_t metadata_size
 )
 {
     if (!io_stream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: io_stream is NULL", NULL);
@@ -198,6 +221,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     /* INIT */
 
     GALNS_Nodesystem *nodesystem = NULL;
+    void *metadata = NULL;
     void *bin = NULL;
     size_t bin_size = __GALNS_Internal_GetNodesystemHeaderSize();
 
@@ -209,8 +233,14 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem = malloc(sizeof(GALNS_Nodesystem));
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodesystem", error);
 
+    metadata = malloc(metadata_size);
+    if (!metadata) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc metadata", error);
+
     bin = malloc(bin_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+
+    memset(metadata, 0, metadata_size);
+    memset(bin, 0, bin_size);
 
     nodesystem->io_stream = *io_stream;
     nodesystem->header.version.major = GALNS_VERSION_MAJOR;
@@ -221,7 +251,9 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.max_node_name_size = node_name_size;
     nodesystem->header.max_node_data_size = node_data_size;
     nodesystem->header.node_size = _GALNS_Internal_GetNodeSize(nodesystem);
+    nodesystem->header.metadata_size = metadata_size;
     nodesystem->header.end_node_index = 0;
+    nodesystem->header.metadata = metadata;
 
     if (__GALNS_Internal_HashNodesystemHeader(nodesystem->header.header_hash, &(nodesystem->header)) <= 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
@@ -247,6 +279,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     error:;
 
     if (nodesystem) free(nodesystem);
+    if (metadata) free(metadata);
     if (bin) free(bin);
 
     return NULL;
@@ -263,6 +296,7 @@ GALNS_Nodesystem *GALNS_LoadNodesystem(
     /* INIT */
 
     GALNS_Nodesystem *nodesystem = NULL;
+    void *metadata = NULL;
     void *bin = NULL;
     size16_t bin_size = __GALNS_Internal_GetNodesystemHeaderSize();
     unsigned char *header_hash_verify = NULL;
@@ -275,18 +309,36 @@ GALNS_Nodesystem *GALNS_LoadNodesystem(
     nodesystem = malloc(sizeof(GALNS_Nodesystem));
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc nodesystem", error);
 
+    metadata = malloc(GALNS_MAX_NODESYSTEM_METADATA_SIZE);
+    if (!metadata) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc metadata", error);
+
     bin = malloc(bin_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
     header_hash_verify = malloc(GALNS_HASH_SIZE);
     if (!header_hash_verify) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc hash to verify", error);
 
+    memset(metadata, 0, GALNS_MAX_NODESYSTEM_METADATA_SIZE);
+    memset(bin, 0, bin_size);
+
     if (io_stream->read(0, bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read Nodesystem header", error);
 
     nodesystem->io_stream = *io_stream;
+    nodesystem->header.metadata = metadata;
 
     __GALNS_Internal_ConvertBin2NodesystemHeader(nodesystem, bin);
+
+    if (nodesystem->header.metadata_size < GALNS_MAX_NODESYSTEM_METADATA_SIZE)
+    {
+        void *metadata_realloc = realloc(metadata, nodesystem->header.metadata_size);
+        if (metadata_realloc)
+        {
+            metadata = metadata_realloc;
+            nodesystem->header.metadata = metadata_realloc;
+        }
+        else GALNS_INTERNAL_DEBUG("Failed to realloc metadata");
+    }
 
     if (__GALNS_Internal_HashNodesystemHeader(header_hash_verify, &(nodesystem->header)) <= 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to hash Nodesystem header", error);
@@ -308,6 +360,7 @@ GALNS_Nodesystem *GALNS_LoadNodesystem(
     error:;
 
     if (nodesystem) free(nodesystem);
+    if (metadata) free(metadata);
     if (bin) free(bin);
     if (header_hash_verify) free(header_hash_verify);
 
@@ -319,6 +372,19 @@ GALNS_NodeIndexOrError GALNS_GetEndNodeIndex(GALNS_Nodesystem *nodesystem)
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", -1);
 
     return nodesystem->header.end_node_index;
+}
+
+void *GALNS_GetNodesystemMetadata(GALNS_Nodesystem *nodesystem, size_t *dst_metadata_size)
+{
+    if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", NULL);
+    if (!(nodesystem->header.metadata)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: metadata in nodesystem is NULL", NULL);
+
+    if (dst_metadata_size)
+    {
+        *dst_metadata_size = nodesystem->header.metadata_size;
+    }
+
+    return nodesystem->header.metadata;
 }
 
 int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem)
@@ -367,4 +433,5 @@ void GALNS_ReleaseNodesystem(GALNS_Nodesystem *nodesystem)
     nodesystem->io_stream.close();
 
     free(nodesystem);
+    free(nodesystem->header.metadata);
 }

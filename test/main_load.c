@@ -28,6 +28,25 @@ int main()
         return -1;
     }
 
+    puts("LOG: Get Nodesystem Metadata");
+    size_t metadata_size = 0;
+    unsigned char *metadata = GALNS_GetNodesystemMetadata(nodesystem, &metadata_size);
+    if (!metadata)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
+    puts("LOG: Read Nodesystem Metadata");
+    printf("---\n|");
+    for (uint16_t index = 0; index < metadata_size; index++)
+    {
+        printf("%x|", metadata[index]);
+    }
+    puts("\n---");
+
     puts("LOG: Open Node 0");
     GALNS_Nodestream *node0 = GALNS_OpenNode(nodesystem, 0);
     if (!node0)

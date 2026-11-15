@@ -24,7 +24,8 @@ int main()
         ".dumptest/test.galns",
         256,
         512,
-        32
+        32,
+        1024
     );
     if (!nodesystem)
     {
@@ -32,6 +33,23 @@ int main()
 
         GALNS_Quit();
         return -1;
+    }
+
+    puts("LOG: Get Nodesystem Metadata");
+    size_t metadata_size = 0;
+    unsigned char *metadata = GALNS_GetNodesystemMetadata(nodesystem, &metadata_size);
+    if (!metadata)
+    {
+        printf("ERROR: %s\n", GALNS_GetErrorMsg());
+
+        GALNS_Quit();
+        return -1;
+    }
+
+    puts("LOG: Write to Nodesystem Metadata");
+    for (uint16_t index = 0; index < metadata_size; index++)
+    {
+        metadata[index] = index % 256;
     }
 
     puts("LOG: Create Node");

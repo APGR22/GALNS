@@ -8,11 +8,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define GALNS_INTERNAL_MAX_NODESYSTEM_HEADER 512
+#define GALNS_INTERNAL_MAX_NODESYSTEM_HEADER (GALNS_MAX_NODESYSTEM_METADATA_SIZE + 512)
 
 typedef struct GALNS_Internal_NodesystemHeader
 {
     unsigned char header_hash[GALNS_HASH_SIZE];
+
+    void *metadata;
 
     GALNS_NodeIndex end_node_index;
 
@@ -22,6 +24,7 @@ typedef struct GALNS_Internal_NodesystemHeader
     size16_t max_node_name_size;
     size16_t max_node_data_size;
     size16_t node_size;
+    size16_t metadata_size;
 
     bool is_little_endian;
 } GALNS_Internal_NodesystemHeader;
