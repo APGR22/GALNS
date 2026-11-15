@@ -233,14 +233,11 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem = malloc(sizeof(GALNS_Nodesystem));
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodesystem", error);
 
-    metadata = malloc(metadata_size);
-    if (!metadata) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc metadata", error);
+    metadata = calloc(sizeof(unsigned char), metadata_size);
+    if (!metadata) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to calloc metadata", error);
 
-    bin = malloc(bin_size);
-    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
-
-    memset(metadata, 0, metadata_size);
-    memset(bin, 0, bin_size);
+    bin = calloc(sizeof(unsigned char), bin_size);
+    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to calloc binary object", error);
 
     nodesystem->io_stream = *io_stream;
     nodesystem->header.version.major = GALNS_VERSION_MAJOR;
@@ -312,14 +309,11 @@ GALNS_Nodesystem *GALNS_LoadNodesystem(
     metadata = malloc(GALNS_MAX_NODESYSTEM_METADATA_SIZE);
     if (!metadata) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc metadata", error);
 
-    bin = malloc(bin_size);
-    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+    bin = calloc(sizeof(unsigned char), bin_size);
+    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to calloc binary object", error);
 
     header_hash_verify = malloc(GALNS_HASH_SIZE);
     if (!header_hash_verify) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc hash to verify", error);
-
-    memset(metadata, 0, GALNS_MAX_NODESYSTEM_METADATA_SIZE);
-    memset(bin, 0, bin_size);
 
     if (io_stream->read(0, bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read Nodesystem header", error);
