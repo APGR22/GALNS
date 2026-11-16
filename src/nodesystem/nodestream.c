@@ -290,6 +290,8 @@ int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconf
         data_size = nodestream->nodesystem->header.max_node_data_size;
     }
 
+    nodestream->node.data_size = data_size;
+
     memcpy(nodestream->node.data, nodeconfig->data, data_size);
     memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
 

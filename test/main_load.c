@@ -99,6 +99,14 @@ int main()
         memcmp(data_hash_1_buffer, data_hash_2_buffer, GALNS_HASH_SIZE) == 0 ? "same" : "not same"
     );
 
+    puts("LOG: Read Node 0 data");
+    printf("--- \n|");
+    for (uint64_t index = 0; index < node0_config->data_size; index++)
+    {
+        printf("%x|", ((unsigned char *) node0_config->data)[index]);
+    }
+    puts("\n---");
+
     puts("LOG: Release Node Config");
     GALNS_ReleaseNodeConfig(node0_config);
 

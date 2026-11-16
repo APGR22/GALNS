@@ -71,6 +71,13 @@ int main()
     puts("LOG: Get Node Config");
     GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
 
+    puts("LOG: Write random bytes");
+    node0_config->data_size = node0_config->data_mem_size;
+    for (uint64_t index = 0; index < node0_config->data_size; index++)
+    {
+        ((unsigned char *)node0_config->data)[index] = index % 256;
+    }
+
     puts("LOG: Set Node Config");
     GALNS_SetNodeConfig(node0, node0_config);
 
