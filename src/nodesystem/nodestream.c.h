@@ -4,16 +4,11 @@
 #include <galns/nodesystem/nodestream.h>
 #include <galns/macro.h>
 #include <galns/type.h>
-#include <galns/time.h>
 #include <stdint.h>
 
 typedef struct GALNS_Node
 {
     unsigned char data_hash[GALNS_HASH_SIZE]; // currently unused
-
-    GALNS_Timestamp created_at;
-    GALNS_Timestamp modified_at;
-    GALNS_Timestamp accessed_at;
 
     void *data;
     void *flags;

@@ -31,7 +31,6 @@ src_files := \
 	src/galns.c\
 	src/debug.c\
 	src/system.c\
-	src/time.c\
 	src/utility.c\
 	src/nodesystem/nodesystem.c\
 	src/nodesystem/nodestream.c

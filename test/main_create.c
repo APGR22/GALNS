@@ -71,41 +71,6 @@ int main()
     puts("LOG: Get Node Config");
     GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
 
-    puts("LOG: Set timestamp to now (UTC)");
-    GALNS_GetTimestampNow(&(node0_config->created_at), 0);
-    GALNS_GetTimestampNow(&(node0_config->modified_at), 0);
-    GALNS_GetTimestampNow(&(node0_config->accessed_at), 0);
-
-    printf("Test: Created at %u:%u:%u.%u %u/%u/%u\n",
-        node0_config->created_at.hours,
-        node0_config->created_at.minutes,
-        node0_config->created_at.seconds,
-        node0_config->created_at.nanoseconds,
-        node0_config->created_at.months,
-        node0_config->created_at.days,
-        node0_config->created_at.years
-    );
-
-    printf("Test: Modified at %u:%u:%u.%u %u/%u/%u\n",
-        node0_config->modified_at.hours,
-        node0_config->modified_at.minutes,
-        node0_config->modified_at.seconds,
-        node0_config->modified_at.nanoseconds,
-        node0_config->modified_at.months,
-        node0_config->modified_at.days,
-        node0_config->modified_at.years
-    );
-
-    printf("Test: Accessed at %u:%u:%u.%u %u/%u/%u\n",
-        node0_config->accessed_at.hours,
-        node0_config->accessed_at.minutes,
-        node0_config->accessed_at.seconds,
-        node0_config->accessed_at.nanoseconds,
-        node0_config->accessed_at.months,
-        node0_config->accessed_at.days,
-        node0_config->accessed_at.years
-    );
-
     puts("LOG: Set Node Config");
     GALNS_SetNodeConfig(node0, node0_config);
 

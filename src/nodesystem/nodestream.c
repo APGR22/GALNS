@@ -1,5 +1,4 @@
 #include <galns/nodesystem/nodestream.h>
-#include <galns/time.h>
 #include <galns/utility.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +6,6 @@
 #include "nodestream.c.h"
 #include "nodesystem.c.h"
 #include "../galns.c.h"
-#include "../time.c.h"
 #include "../debug.c.h"
 
 int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
@@ -36,18 +34,6 @@ int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
 
     member_size = sizeof(nodestream->node.data_hash);
     memcpy(dst + offset, nodestream->node.data_hash, member_size);
-    offset += member_size;
-
-
-    member_size = _GALNS_Internal_GetTimestampSize();
-
-    _GALNS_Internal_ConvertTimestamp2Bin(dst + offset, &(nodestream->node.created_at));
-    offset += member_size;
-
-    _GALNS_Internal_ConvertTimestamp2Bin(dst + offset, &(nodestream->node.modified_at));
-    offset += member_size;
-
-    _GALNS_Internal_ConvertTimestamp2Bin(dst + offset, &(nodestream->node.accessed_at));
     offset += member_size;
 
 
@@ -86,18 +72,6 @@ int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
     offset += member_size;
 
 
-    member_size = _GALNS_Internal_GetTimestampSize();
-
-    _GALNS_Internal_ConvertBin2Timestamp(&(nodestream->node.created_at), src + offset);
-    offset += member_size;
-
-    _GALNS_Internal_ConvertBin2Timestamp(&(nodestream->node.modified_at), src + offset);
-    offset += member_size;
-
-    _GALNS_Internal_ConvertBin2Timestamp(&(nodestream->node.accessed_at), src + offset);
-    offset += member_size;
-
-
     member_size = sizeof(nodestream->node.next_node_alloc_index);
     memcpy(&(nodestream->node.next_node_alloc_index), src + offset, member_size);
     offset += member_size;
@@ -117,9 +91,6 @@ size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem)
     + sizeof(dummy->node.data_size)
     + (nodesystem->header.max_node_data_size) // data
     + sizeof(dummy->node.data_hash)
-    + _GALNS_Internal_GetTimestampSize() // created_at
-    + _GALNS_Internal_GetTimestampSize() // modified_at
-    + _GALNS_Internal_GetTimestampSize() // accessed_at
     + sizeof(dummy->node.next_node_alloc_index)
     ;
 }
@@ -271,9 +242,6 @@ GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
     GALNS_NodeConfig nodeconfig_cache = {
         .data = node_data,
         .flags = node_flags,
-        .created_at = nodestream->node.created_at,
-        .modified_at = nodestream->node.modified_at,
-        .accessed_at = nodestream->node.accessed_at,
 
         .data_mem_size = data_mem_size,
         .flags_mem_size = flags_mem_size,
@@ -324,10 +292,6 @@ int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconf
 
     memcpy(nodestream->node.data, nodeconfig->data, data_size);
     memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
-
-    nodestream->node.created_at = nodeconfig->created_at;
-    nodestream->node.modified_at = nodeconfig->modified_at;
-    nodestream->node.accessed_at = nodeconfig->accessed_at;
 
     return 0;
 }
