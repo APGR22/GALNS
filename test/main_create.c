@@ -22,7 +22,6 @@ int main()
     GALNS_Nodesystem *nodesystem = GALNS_CreateNodesystem(
         &io_stream,
         ".dumptest/test.galns",
-        256,
         512,
         32,
         1024
@@ -106,9 +105,6 @@ int main()
         node0_config->accessed_at.days,
         node0_config->accessed_at.years
     );
-
-    memcpy(node0_config->name, "Root Node", sizeof("Root Node"));
-    printf("Test: Set Node 0 name to \"%s\"\n", node0_config->name);
 
     puts("LOG: Set Node Config");
     GALNS_SetNodeConfig(node0, node0_config);

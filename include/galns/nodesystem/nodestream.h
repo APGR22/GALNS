@@ -16,11 +16,9 @@ typedef struct GALNS_NodeConfig
     GALNS_Timestamp modified_at;
     GALNS_Timestamp accessed_at;
 
-    char *const name;
     void *const data;
     void *const flags;
 
-    const size16_t name_mem_size;
     const size16_t data_mem_size;
     const size16_t flags_mem_size;
 

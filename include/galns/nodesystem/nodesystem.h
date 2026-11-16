@@ -12,7 +12,6 @@ typedef struct GALNS_Nodesystem GALNS_Nodesystem;
 GALNS_API GALNS_Nodesystem *GALNS_CreateNodesystem(
     const GALNS_IOInterface *io_stream,
     const char *filename,
-    size16_t node_name_size,
     size16_t node_data_size,
     size16_t node_flags_size,
     size16_t metadata_size

@@ -92,8 +92,6 @@ int main()
         node0_config->accessed_at.years
     );
 
-    printf("Test: Get Node 0 name that is \"%s\"\n", node0_config->name);
-
     puts("LOG: Get Node 0 data hash");
     unsigned char data_hash_1_buffer[GALNS_HASH_SIZE] = {0};
     if (GALNS_GetNodeDataHash(data_hash_1_buffer, node0) < 0)

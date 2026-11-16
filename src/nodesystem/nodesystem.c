@@ -18,7 +18,6 @@ size_t __GALNS_Internal_GetNodesystemHeaderSize()
         + sizeof(dummy->header.version)
         + sizeof(dummy->header.is_little_endian)
         + sizeof(dummy->header.max_node_flags_size)
-        + sizeof(dummy->header.max_node_name_size)
         + sizeof(dummy->header.max_node_data_size)
         + sizeof(dummy->header.node_size)
         + sizeof(dummy->header.metadata_size)
@@ -54,10 +53,6 @@ int __GALNS_Internal_ConvertNodesystemHeader2Bin(void *dst, GALNS_Nodesystem *no
 
     member_size = sizeof(nodesystem->header.max_node_flags_size);
     memcpy(dst + offset, &(nodesystem->header.max_node_flags_size), member_size);
-    offset += member_size;
-
-    member_size = sizeof(nodesystem->header.max_node_name_size);
-    memcpy(dst + offset, &(nodesystem->header.max_node_name_size), member_size);
     offset += member_size;
 
     member_size = sizeof(nodesystem->header.max_node_data_size);
@@ -115,10 +110,6 @@ int __GALNS_Internal_ConvertBin2NodesystemHeader(GALNS_Nodesystem *nodesystem, v
     memcpy(&(nodesystem->header.max_node_flags_size), src + offset, member_size);
     offset += member_size;
 
-    member_size = sizeof(nodesystem->header.max_node_name_size);
-    memcpy(&(nodesystem->header.max_node_name_size), src + offset, member_size);
-    offset += member_size;
-
     member_size = sizeof(nodesystem->header.max_node_data_size);
     memcpy(&(nodesystem->header.max_node_data_size), src + offset, member_size);
     offset += member_size;
@@ -171,8 +162,6 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Internal
     if (ret != 1) goto error;
     ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_flags_size),   sizeof(nodesystemheader->max_node_flags_size)   );
     if (ret != 1) goto error;
-    ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_name_size),    sizeof(nodesystemheader->max_node_name_size)    );
-    if (ret != 1) goto error;
     ret = EVP_DigestUpdate(ctx, &(nodesystemheader->max_node_data_size),    sizeof(nodesystemheader->max_node_data_size)    );
     if (ret != 1) goto error;
     ret = EVP_DigestUpdate(ctx, &(nodesystemheader->node_size),             sizeof(nodesystemheader->node_size)             );
@@ -209,7 +198,6 @@ ssize_t __GALNS_Internal_HashNodesystemHeader(unsigned char *dst, GALNS_Internal
 GALNS_Nodesystem *GALNS_CreateNodesystem(
     const GALNS_IOInterface *io_stream,
     const char *filename,
-    size16_t node_name_size,
     size16_t node_data_size,
     size16_t node_flags_size,
     size16_t metadata_size
@@ -245,7 +233,6 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.version.patch = GALNS_VERSION_PATCH;
     nodesystem->header.is_little_endian = GALNS_IsLittleEndian();
     nodesystem->header.max_node_flags_size = node_flags_size;
-    nodesystem->header.max_node_name_size = node_name_size;
     nodesystem->header.max_node_data_size = node_data_size;
     nodesystem->header.node_size = _GALNS_Internal_GetNodeSize(nodesystem);
     nodesystem->header.metadata_size = metadata_size;

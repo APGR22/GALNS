@@ -26,10 +26,6 @@ int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
     memcpy(dst + offset, nodestream->node.flags, member_size);
     offset += member_size;
 
-    member_size = nodestream->nodesystem->header.max_node_name_size;
-    memcpy(dst + offset, nodestream->node.name, member_size);
-    offset += member_size;
-
     member_size = sizeof(nodestream->node.data_size);
     memcpy(dst + offset, &(nodestream->node.data_size), member_size);
     offset += member_size;
@@ -77,10 +73,6 @@ int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
     memcpy(nodestream->node.flags, src + offset, member_size);
     offset += member_size;
 
-    member_size = nodestream->nodesystem->header.max_node_name_size;
-    memcpy(nodestream->node.name, src + offset, member_size);
-    offset += member_size;
-
     member_size = sizeof(nodestream->node.data_size);
     memcpy(&(nodestream->node.data_size), src + offset, member_size);
     offset += member_size;
@@ -122,7 +114,6 @@ size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem)
     return 0
     + sizeof(dummy->node.system_flags)
     + (nodesystem->header.max_node_flags_size) // flags
-    + (nodesystem->header.max_node_name_size) // name
     + sizeof(dummy->node.data_size)
     + (nodesystem->header.max_node_data_size) // data
     + sizeof(dummy->node.data_hash)
@@ -204,9 +195,6 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     nodestream = malloc(sizeof(GALNS_Nodestream));
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream", error);
 
-    node_name = malloc(nodesystem->header.max_node_name_size);
-    if (!node_name) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream name", error);
-
     node_data = malloc(nodesystem->header.max_node_data_size);
     if (!node_data) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream data", error);
 
@@ -218,7 +206,6 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
 
     nodestream->nodesystem = nodesystem;
     nodestream->index = node_index;
-    nodestream->node.name = node_name;
     nodestream->node.data = node_data;
     nodestream->node.flags = node_flags;
 
@@ -261,7 +248,6 @@ GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
     void *node_data = NULL;
     void *node_flags = NULL;
 
-    size16_t name_mem_size = nodestream->nodesystem->header.max_node_name_size;
     size16_t data_mem_size = nodestream->nodesystem->header.max_node_data_size;
     size16_t flags_mem_size = nodestream->nodesystem->header.max_node_flags_size;
 
@@ -272,29 +258,23 @@ GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
     nodeconfig = malloc(sizeof(GALNS_NodeConfig));
     if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node config", error);
 
-    node_name = malloc(name_mem_size);
-    if (!node_name) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node name", error);
-
     node_data = malloc(data_mem_size);
     if (!node_data) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node data", error);
 
     node_flags = malloc(flags_mem_size);
     if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node flags", error);
 
-    memcpy(node_name, nodestream->node.name, name_mem_size);
     memcpy(node_data, nodestream->node.data, data_mem_size);
     memcpy(node_flags, nodestream->node.flags, flags_mem_size);
 
     /* --- INIT CONST */
     GALNS_NodeConfig nodeconfig_cache = {
-        .name = node_name,
         .data = node_data,
         .flags = node_flags,
         .created_at = nodestream->node.created_at,
         .modified_at = nodestream->node.modified_at,
         .accessed_at = nodestream->node.accessed_at,
 
-        .name_mem_size = name_mem_size,
         .data_mem_size = data_mem_size,
         .flags_mem_size = flags_mem_size,
 
@@ -342,7 +322,6 @@ int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconf
         data_size = nodestream->nodesystem->header.max_node_data_size;
     }
 
-    memcpy(nodestream->node.name, nodeconfig->name, nodestream->nodesystem->header.max_node_name_size);
     memcpy(nodestream->node.data, nodeconfig->data, data_size);
     memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
 
@@ -357,7 +336,6 @@ void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig)
 {
     if (!nodeconfig) return;
 
-    if (nodeconfig->name) free(nodeconfig->name);
     if (nodeconfig->data) free(nodeconfig->data);
     if (nodeconfig->flags) free(nodeconfig->flags);
 
@@ -410,7 +388,6 @@ void GALNS_CloseNode(GALNS_Nodestream *nodestream)
     if (!nodestream) return;
 
     free(nodestream->node.flags);
-    free(nodestream->node.name);
     free(nodestream->node.data);
     free(nodestream);
 }

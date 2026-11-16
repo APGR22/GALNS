@@ -15,7 +15,6 @@ typedef struct GALNS_Node
     GALNS_Timestamp modified_at;
     GALNS_Timestamp accessed_at;
 
-    char *name;
     void *data;
     void *flags;
 
