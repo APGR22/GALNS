@@ -283,7 +283,7 @@ int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconf
     if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
     if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodeconfig is NULL", -3);
 
-    if (GALNS_HashData(nodestream->node.data_hash, nodeconfig->data, nodeconfig->data_mem_size) < 0)
+    if (GALNS_HashData(nodestream->node.data_hash, nodeconfig->data, nodeconfig->data_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to hash Node data", -4);
 
     size16_t data_size = nodeconfig->data_size;
@@ -328,7 +328,7 @@ int GALNS_SyncNode(GALNS_Nodestream *nodestream)
     bin = malloc(node_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
-    if (GALNS_HashData(nodestream->node.data_hash, nodestream->node.data, nodestream->nodesystem->header.max_node_data_size) < 0)
+    if (GALNS_HashData(nodestream->node.data_hash, nodestream->node.data, nodestream->node.data_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to hash Node data", -3);
 
     __GALNS_Internal_ConvertNode2Bin(bin, nodestream);
