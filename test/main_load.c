@@ -107,6 +107,9 @@ int main()
     }
     puts("\n---");
 
+    puts("LOG: Get Next Node 0 Alloc Index");
+    printf("Test: next_node_alloc_index is %u\n", node0_config->next_node_alloc_index);
+
     puts("LOG: Release Node Config");
     GALNS_ReleaseNodeConfig(node0_config);
 

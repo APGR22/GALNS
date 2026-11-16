@@ -243,6 +243,8 @@ GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
         .data = node_data,
         .flags = node_flags,
 
+        .next_node_alloc_index = nodestream->node.next_node_alloc_index,
+
         .data_mem_size = data_mem_size,
         .flags_mem_size = flags_mem_size,
 
@@ -294,6 +296,8 @@ int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconf
 
     memcpy(nodestream->node.data, nodeconfig->data, data_size);
     memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
+
+    nodestream->node.next_node_alloc_index = nodeconfig->next_node_alloc_index;
 
     return 0;
 }

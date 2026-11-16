@@ -68,23 +68,26 @@ int main()
         return -1;
     }
 
-    puts("LOG: Get Node Config");
+    puts("LOG: Get Node 0 Config");
     GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
 
-    puts("LOG: Write random bytes");
+    puts("LOG: Write random bytes to Node 0");
     node0_config->data_size = node0_config->data_mem_size;
     for (uint64_t index = 0; index < node0_config->data_size; index++)
     {
         ((unsigned char *)node0_config->data)[index] = index % 256;
     }
 
-    puts("LOG: Set Node Config");
+    puts("LOG: Set Next Node 0 Alloc Index");
+    node0_config->next_node_alloc_index = 1;
+
+    puts("LOG: Set Node 0 Config");
     GALNS_SetNodeConfig(node0, node0_config);
 
-    puts("LOG: Release Node Config");
+    puts("LOG: Release Node 0 Config");
     GALNS_ReleaseNodeConfig(node0_config);
 
-    puts("LOG: Sync Node to IO");
+    puts("LOG: Sync Node 0 to IO");
     if (GALNS_SyncNode(node0) < 0)
     {
         printf("ERROR: %s\n", GALNS_GetErrorMsg());

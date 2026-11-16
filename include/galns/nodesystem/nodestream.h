@@ -14,6 +14,8 @@ typedef struct GALNS_NodeConfig
     void *const data;
     void *const flags;
 
+    GALNS_NodeIndex next_node_alloc_index;
+
     const size16_t data_mem_size;
     const size16_t flags_mem_size;
 
