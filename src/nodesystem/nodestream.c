@@ -1,8 +1,6 @@
 #include <galns/nodesystem/nodestream.h>
-#include <galns/utility.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/evp.h>
 #include "nodestream.c.h"
 #include "nodesystem.c.h"
 #include "../galns.c.h"
@@ -32,8 +30,8 @@ int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
     memcpy(dst + offset, nodestream->node.data, member_size);
     offset += member_size;
 
-    member_size = sizeof(nodestream->node.data_hash);
-    memcpy(dst + offset, nodestream->node.data_hash, member_size);
+    member_size = sizeof(nodestream->node.hash);
+    memcpy(dst + offset, nodestream->node.hash, member_size);
     offset += member_size;
 
 
@@ -67,8 +65,8 @@ int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
     memcpy(nodestream->node.data, src + offset, member_size);
     offset += member_size;
 
-    member_size = sizeof(nodestream->node.data_hash);
-    memcpy(nodestream->node.data_hash, src + offset, member_size);
+    member_size = sizeof(nodestream->node.hash);
+    memcpy(nodestream->node.hash, src + offset, member_size);
     offset += member_size;
 
 
@@ -90,7 +88,7 @@ size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem)
     + (nodesystem->header.max_node_flags_size) // flags
     + sizeof(dummy->node.data_size)
     + (nodesystem->header.max_node_data_size) // data
-    + sizeof(dummy->node.data_hash)
+    + sizeof(dummy->node.hash)
     + sizeof(dummy->node.next_node_alloc_index)
     ;
 }
@@ -267,24 +265,11 @@ GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
     return NULL;
 }
 
-int GALNS_GetNodeDataHash(unsigned char *dst_data_hash, GALNS_Nodestream *nodestream)
-{
-    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
-    if (!dst_data_hash) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: dst_data_hash is NULL", -2);
-
-    memcpy(dst_data_hash, nodestream->node.data_hash, GALNS_HASH_SIZE);
-
-    return 0;
-}
-
 int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig)
 {
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
     if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
     if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodeconfig is NULL", -3);
-
-    if (GALNS_HashData(nodestream->node.data_hash, nodeconfig->data, nodeconfig->data_size) < 0)
-        GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to hash Node data", -4);
 
     size16_t data_size = nodeconfig->data_size;
     if (data_size > nodestream->nodesystem->header.max_node_data_size)
@@ -327,9 +312,6 @@ int GALNS_SyncNode(GALNS_Nodestream *nodestream)
 
     bin = malloc(node_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
-
-    if (GALNS_HashData(nodestream->node.data_hash, nodestream->node.data, nodestream->node.data_size) < 0)
-        GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to hash Node data", -3);
 
     __GALNS_Internal_ConvertNode2Bin(bin, nodestream);
 

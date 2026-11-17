@@ -8,7 +8,7 @@
 
 typedef struct GALNS_Node
 {
-    unsigned char data_hash[GALNS_HASH_SIZE]; // currently unused
+    unsigned char hash[GALNS_HASH_SIZE]; // currently unused
 
     void *data;
     void *flags;

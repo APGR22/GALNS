@@ -35,14 +35,6 @@ GALNS_API GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_N
  */
 GALNS_API GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream);
 
-/**
- * @attention
- * Data hash last update was on `GALNS_OpenNode()`.
- * It can updated on `GALNS_SetNodeConfig()`
- * @param dst_data_hash The size is depends on GALNS_HASH_SIZE
- */
-GALNS_API int GALNS_GetNodeDataHash(unsigned char *dst_data_hash, GALNS_Nodestream *nodestream);
-
 GALNS_API int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig);
 GALNS_API void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig);
 

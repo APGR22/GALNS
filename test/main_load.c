@@ -60,45 +60,6 @@ int main()
     puts("LOG: Get Node Config");
     GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
 
-    puts("LOG: Get Node 0 data hash");
-    unsigned char data_hash_1_buffer[GALNS_HASH_SIZE] = {0};
-    if (GALNS_GetNodeDataHash(data_hash_1_buffer, node0) < 0)
-    {
-        printf("ERROR: %s\n", GALNS_GetErrorMsg());
-
-        GALNS_Quit();
-        return -1;
-    }
-
-    puts("Test: The hash is");
-    for (uint16_t index = 0; index < GALNS_HASH_SIZE; index++)
-    {
-        printf("%x", data_hash_1_buffer[index]);
-    }
-    putc('\n', stdout);
-
-    puts("LOG: Hash Node 0 data");
-    unsigned char data_hash_2_buffer[GALNS_HASH_SIZE] = {0};
-    if (GALNS_HashData(data_hash_2_buffer, node0_config->data, node0_config->data_mem_size) < 0)
-    {
-        printf("ERROR: %s\n", GALNS_GetErrorMsg());
-
-        GALNS_Quit();
-        return -1;
-    }
-
-    puts("Test: The hash is");
-    for (uint16_t index = 0; index < GALNS_HASH_SIZE; index++)
-    {
-        printf("%x", data_hash_2_buffer[index]);
-    }
-    putc('\n', stdout);
-
-    puts("LOG: Compare 2 hash to verify");
-    printf("Test: result is %s\n",
-        memcmp(data_hash_1_buffer, data_hash_2_buffer, GALNS_HASH_SIZE) == 0 ? "same" : "not same"
-    );
-
     puts("LOG: Read Node 0 data");
     printf("--- \n|");
     for (uint64_t index = 0; index < node0_config->data_size; index++)
