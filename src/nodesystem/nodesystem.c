@@ -245,7 +245,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.max_node_flags_size = node_flags_size;
     nodesystem->header.max_node_data_size = node_data_size;
     nodesystem->header.max_node_hash_size = node_hash_size;
-    nodesystem->header.node_size = _GALNS_Internal_GetNodeInfoSize() + _GALNS_Internal_GetNodeConfigSize(nodesystem);
+    nodesystem->header.node_size = _GALNS_Internal_GetNodeConfigSize(nodesystem);
     nodesystem->header.metadata_size = metadata_size;
     nodesystem->header.end_node_index = 0;
     nodesystem->header.metadata = metadata;

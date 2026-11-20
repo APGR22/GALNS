@@ -42,21 +42,6 @@ int __GALNS_Internal_ConvertNodeConfig2Bin(
     return 0;
 }
 
-int __GALNS_Internal_ConvertNodeInfo2Bin(void *dst, GALNS_NodeInfo *nodeinfo)
-{
-    if (!dst) return -1;
-    if (!nodeinfo) return -2;
-
-    off_t offset = 0;
-    size16_t member_size = 0;
-
-    member_size = sizeof(nodeinfo->system_flags);
-    memcpy(dst + offset, &(nodeinfo->system_flags), member_size);
-    offset += member_size;
-
-    return 0;
-}
-
 int __GALNS_Internal_ConvertBin2NodeConfig(
     GALNS_NodeConfig *nodeconfig,
     void *src,
@@ -91,30 +76,6 @@ int __GALNS_Internal_ConvertBin2NodeConfig(
     offset += member_size;
 
     return 0;
-}
-
-int __GALNS_Internal_ConvertBin2NodeInfo(GALNS_NodeInfo *nodeinfo, void *src)
-{
-    if (!nodeinfo) return -1;
-    if (!src) return -2;
-
-    off_t offset = 0;
-    size16_t member_size = 0;
-
-    member_size = sizeof(nodeinfo->system_flags);
-    memcpy(&(nodeinfo->system_flags), src + offset, member_size);
-    offset += member_size;
-
-    return 0;
-}
-
-size_t _GALNS_Internal_GetNodeInfoSize()
-{
-    GALNS_NodeInfo *dummy = NULL;
-
-    return 0
-    + sizeof(dummy->system_flags)
-    ;
 }
 
 size_t _GALNS_Internal_GetNodeConfigSize(GALNS_Nodesystem *nodesystem)
@@ -190,31 +151,14 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     /* INIT */
 
     GALNS_Nodestream *nodestream = NULL;
-    void *bin = NULL;
-    size_t bin_size = _GALNS_Internal_GetNodeConfigSize(nodesystem);
-    off64_t offset = GALNS_INTERNAL_START_NODE_OFFSET
-        + (node_index * nodesystem->header.node_size)
-        + GALNS_INTERNAL_NODEINFO_OFFSET;
 
     /* CODE */
 
     nodestream = malloc(sizeof(GALNS_Nodestream));
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream", error);
 
-    bin = malloc(bin_size);
-    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
-
-    if (nodesystem->io_stream.read(offset, bin, bin_size) < 0)
-        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read node info", error);
-
     nodestream->nodesystem = nodesystem;
     nodestream->index = node_index;
-
-    __GALNS_Internal_ConvertBin2NodeInfo(&(nodestream->nodeinfo), bin);
-
-    /* CLEANUP */
-
-    free(bin);
 
     /* RETURN IF SUCCESS */
 
@@ -225,7 +169,6 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     error:;
 
     if (nodestream) free(nodestream);
-    if (bin) free(bin);
 
     return NULL;
 }
@@ -283,14 +226,15 @@ int GALNS_SyncNode(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfi
     size_t bin_size = nodestream->nodesystem->header.node_size;
     off64_t offset = GALNS_INTERNAL_START_NODE_OFFSET
         + (nodestream->index * bin_size)
-        + GALNS_INTERNAL_NODECONFIG_OFFSET;
+        + GALNS_INTERNAL_NODECONFIG_OFFSET
+        ;
 
     /* CODE */
 
     bin = malloc(bin_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
-    __GALNS_Internal_ConvertNodeConfig2Bin(bin, src_nodeconfig, nodestream->nodesystem);
+    __GALNS_Internal_ConvertNodeConfig2Bin(bin + GALNS_INTERNAL_NODECONFIG_OFFSET, src_nodeconfig, nodestream->nodesystem);
 
     if (nodestream->nodesystem->io_stream.write(offset, bin, bin_size) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write node config to IO", error);

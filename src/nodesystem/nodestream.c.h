@@ -7,8 +7,7 @@
 #include <stdint.h>
 
 #define GALNS_INTERNAL_START_NODE_OFFSET GALNS_INTERNAL_MAX_NODESYSTEM_HEADER
-#define GALNS_INTERNAL_NODEINFO_OFFSET 0
-#define GALNS_INTERNAL_NODECONFIG_OFFSET _GALNS_Internal_GetNodeInfoSize()
+#define GALNS_INTERNAL_NODECONFIG_OFFSET 0
 
 // typedef struct GALNS_Node
 // {
@@ -36,6 +35,5 @@ struct GALNS_Nodestream
 };
 
 size_t _GALNS_Internal_GetNodeConfigSize(GALNS_Nodesystem *nodesystem);
-size_t _GALNS_Internal_GetNodeInfoSize();
 
 #endif
