@@ -177,8 +177,9 @@ int GALNS_ReadNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nod
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
     if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
     if (!dst_nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: dst_nodeconfig is NULL", -3);
-    if (!(dst_nodeconfig->data)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: data in dst_nodeconfig is NULL", -4);
-    if (!(dst_nodeconfig->flags)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: flags in dst_nodeconfig is NULL", -5);
+    if (!(dst_nodeconfig->flags)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: flags in dst_nodeconfig is NULL", -4);
+    if (!(dst_nodeconfig->data)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: data in dst_nodeconfig is NULL", -5);
+    if (!(dst_nodeconfig->hash)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: hash in dst_nodeconfig is NULL", -6);
 
     /* INIT */
 
