@@ -121,7 +121,7 @@ int main()
         ((unsigned char *)node0_config.data)[index] = index % 256;
     }
 
-    puts("LOG: Set Node 0 Hash (random bytes, not real hash)");
+    puts("LOG: Write Node 0 Hash (random bytes, not real hash)");
     for (uint64_t index = 0; index < HASH_SIZE; index++)
     {
         node0_config.hash[index] = index * 2 % 256;
