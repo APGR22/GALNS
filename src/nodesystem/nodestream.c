@@ -172,7 +172,7 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     return NULL;
 }
 
-int GALNS_GetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nodeconfig)
+int GALNS_ReadNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nodeconfig)
 {
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
     if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
@@ -213,7 +213,7 @@ int GALNS_GetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_node
     return -100;
 }
 
-int GALNS_SyncNode(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfig)
+int GALNS_WriteNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfig)
 {
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
     if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);

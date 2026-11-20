@@ -86,8 +86,8 @@ int main()
         return -1;
     }
 
-    puts("LOG: Get Node 0 Config");
-    GALNS_GetNodeConfig(node0, &node0_config);
+    puts("LOG: Read Node 0 Config");
+    GALNS_ReadNodeConfig(node0, &node0_config);
 
     puts("LOG: Read Node 0 flags");
     uint32_t temp_flags;

@@ -28,8 +28,8 @@ GALNS_API GALNS_NodeIndexOrError GALNS_CreateNode(GALNS_Nodesystem *nodesystem);
 GALNS_API int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS_NodeIndex *dst_result);
 GALNS_API GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex node_index);
 
-GALNS_API int GALNS_GetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nodeconfig);
-GALNS_API int GALNS_SyncNode(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfig);
+GALNS_API int GALNS_ReadNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nodeconfig);
+GALNS_API int GALNS_WriteNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfig);
 
 GALNS_API void GALNS_CloseNode(GALNS_Nodestream *nodestream);
 

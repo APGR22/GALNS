@@ -105,9 +105,6 @@ int main()
         return -1;
     }
 
-    puts("LOG: Get Node 0 Config");
-    GALNS_GetNodeConfig(node0, &node0_config);
-
     puts("LOG: Set flags");
     uint32_t temp_hash = 1;
     memcpy(node0_config.flags, &temp_hash, FLAGS_SIZE);
@@ -130,8 +127,8 @@ int main()
     puts("LOG: Set Next Node 0 Alloc Index");
     node0_config.next_node_alloc_index = 1;
 
-    puts("LOG: Sync Node 0 to IO");
-    if (GALNS_SyncNode(node0, &node0_config) < 0)
+    puts("LOG: Write Node 0 to IO");
+    if (GALNS_WriteNodeConfig(node0, &node0_config) < 0)
     {
         printf("ERROR: %s\n", GALNS_GetErrorMsg());
 
