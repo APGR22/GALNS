@@ -98,7 +98,7 @@ GALNS_NodeIndexOrError GALNS_CreateNode(GALNS_Nodesystem *nodesystem)
     if (nodesystem->header.end_node_index == UINT32_MAX)
         GALNS_INTERNAL_DEBUG_ERROR_RETURN("It has reach max node index", -2);
 
-    GALNS_NodeIndex cur_end_node_index = ++nodesystem->header.end_node_index;
+    GALNS_NodeIndex cur_end_node_index = nodesystem->header.end_node_index++;
 
     if (nodesystem->io_stream.set_eof(
         GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodesystem->header.node_size * cur_end_node_index)
@@ -119,19 +119,18 @@ int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS
     if (left == 0) return 0;
     if (count > left) count = left;
 
+    GALNS_NodeIndex prev_end_node_index = nodesystem->header.end_node_index;
     nodesystem->header.end_node_index += count;
 
-    GALNS_NodeIndex cur_end_node_index = nodesystem->header.end_node_index;
-
     if (nodesystem->io_stream.set_eof(
-        GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodesystem->header.node_size * cur_end_node_index)
+        GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodesystem->header.node_size * nodesystem->header.end_node_index)
     ) < 0)
         GALNS_INTERNAL_DEBUG_ERROR_RETURN("Failed to set EOF", -2);
 
     if (dst_result)
     {
         for (
-            uint64_t index = 0, node_index = nodesystem->header.end_node_index;
+            uint64_t index = 0, node_index = prev_end_node_index;
             index < count;
             index++, node_index++
         )

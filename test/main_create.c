@@ -56,8 +56,15 @@ int main()
     printf("Test: Get Node index is %lld\n", GALNS_CreateNode(nodesystem));
 
     puts("LOG: Create Nodes (2)");
-    int64_t new_node_count = GALNS_CreateNodes(nodesystem, 2, NULL);
+    GALNS_NodeIndex temp_indexes[2];
+    int64_t new_node_count = GALNS_CreateNodes(nodesystem, sizeof(temp_indexes) / sizeof(GALNS_NodeIndex), temp_indexes);
     printf("Test: Node count is %lld\n", new_node_count);
+    puts("---");
+    for (uint64_t index = 0; index < sizeof(temp_indexes) / sizeof(GALNS_NodeIndex); index++)
+    {
+        printf("New Index: %u\n", temp_indexes[index]);
+    }
+    puts("---");
 
     puts("LOG: Open Node 0");
     GALNS_Nodestream *node0 = GALNS_OpenNode(nodesystem, 0);
