@@ -34,4 +34,6 @@ struct GALNS_Nodesystem
     GALNS_Internal_NodesystemHeader header;
 };
 
+size_t _GALNS_Internal_GetNodesystemHeaderSize();
+
 #endif

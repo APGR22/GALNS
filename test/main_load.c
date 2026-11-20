@@ -57,22 +57,44 @@ int main()
         return -1;
     }
 
-    puts("LOG: Get Node Config");
-    GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
+    puts("LOG: Setup Node 0 Config");
+    GALNS_NodeConfig node0_config;
+    memset(&node0_config, 0, sizeof(node0_config));
+
+    node0_config.data = malloc(DATA_ALLOC_SIZE);
+    if (!(node0_config.data))
+    {
+        puts("ERROR: Failed to malloc data\n");
+
+        GALNS_Quit();
+        return -1;
+    }
+    node0_config.flags = malloc(FLAGS_SIZE);
+    if (!(node0_config.flags))
+    {
+        puts("ERROR: Failed to malloc flags\n");
+
+        GALNS_Quit();
+        return -1;
+    }
+
+    puts("LOG: Get Node 0 Config");
+    GALNS_GetNodeConfig(node0, &node0_config);
 
     puts("LOG: Read Node 0 data");
     printf("--- \n|");
-    for (uint64_t index = 0; index < node0_config->data_size; index++)
+    for (uint64_t index = 0; index < node0_config.data_size; index++)
     {
-        printf("%x|", ((unsigned char *) node0_config->data)[index]);
+        printf("%x|", ((unsigned char *) node0_config.data)[index]);
     }
     puts("\n---");
 
     puts("LOG: Get Next Node 0 Alloc Index");
-    printf("Test: next_node_alloc_index is %u\n", node0_config->next_node_alloc_index);
+    printf("Test: next_node_alloc_index is %u\n", node0_config.next_node_alloc_index);
 
-    puts("LOG: Release Node Config");
-    GALNS_ReleaseNodeConfig(node0_config);
+    puts("LOG: Cleanup Node 0 Config");
+    free(node0_config.data);
+    free(node0_config.flags);
 
     puts("LOG: Close Node 0");
     GALNS_CloseNode(node0);

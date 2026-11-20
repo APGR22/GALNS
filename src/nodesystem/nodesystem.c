@@ -10,7 +10,7 @@
 #include "../debug.c.h"
 #include "../galns.c.h"
 
-size_t __GALNS_Internal_GetNodesystemHeaderSize()
+size_t _GALNS_Internal_GetNodesystemHeaderSize()
 {
     GALNS_Nodesystem *dummy = NULL;
 
@@ -211,7 +211,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     GALNS_Nodesystem *nodesystem = NULL;
     void *metadata = NULL;
     void *bin = NULL;
-    size_t bin_size = __GALNS_Internal_GetNodesystemHeaderSize();
+    size_t bin_size = _GALNS_Internal_GetNodesystemHeaderSize();
 
     /* CODE */
 
@@ -234,7 +234,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.is_little_endian = GALNS_IsLittleEndian();
     nodesystem->header.max_node_flags_size = node_flags_size;
     nodesystem->header.max_node_data_size = node_data_size;
-    nodesystem->header.node_size = _GALNS_Internal_GetNodeSize(nodesystem);
+    nodesystem->header.node_size = _GALNS_Internal_GetNodeInfoSize() + _GALNS_Internal_GetNodeConfigSize(nodesystem);
     nodesystem->header.metadata_size = metadata_size;
     nodesystem->header.end_node_index = 0;
     nodesystem->header.metadata = metadata;
@@ -282,7 +282,7 @@ GALNS_Nodesystem *GALNS_LoadNodesystem(
     GALNS_Nodesystem *nodesystem = NULL;
     void *metadata = NULL;
     void *bin = NULL;
-    size16_t bin_size = __GALNS_Internal_GetNodesystemHeaderSize();
+    size16_t bin_size = _GALNS_Internal_GetNodesystemHeaderSize();
     unsigned char *header_hash_verify = NULL;
 
     /* CODE */
@@ -375,7 +375,7 @@ int GALNS_SyncNodeHeader(GALNS_Nodesystem *nodesystem)
     /* INIT */
 
     void *bin = NULL;
-    size_t header_size = __GALNS_Internal_GetNodesystemHeaderSize();
+    size_t header_size = _GALNS_Internal_GetNodesystemHeaderSize();
 
     /* CODE */
 

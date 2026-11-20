@@ -11,13 +11,12 @@ typedef struct GALNS_Nodestream GALNS_Nodestream;
 
 typedef struct GALNS_NodeConfig
 {
-    void *const data;
-    void *const flags;
+    unsigned char hash[GALNS_HASH_SIZE];
+
+    void *data;
+    void *flags;
 
     GALNS_NodeIndex next_node_alloc_index;
-
-    const size16_t data_mem_size;
-    const size16_t flags_mem_size;
 
     size16_t data_size;
 } GALNS_NodeConfig;
@@ -30,15 +29,8 @@ GALNS_API GALNS_NodeIndexOrError GALNS_CreateNode(GALNS_Nodesystem *nodesystem);
 GALNS_API int64_t GALNS_CreateNodes(GALNS_Nodesystem *nodesystem, uint32_t maxcount, GALNS_NodeIndex *dst_result);
 GALNS_API GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex node_index);
 
-/**
- * @return GALNS_NodeConfig must be freed with `GALNS_ReleaseNodeConfig()`
- */
-GALNS_API GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream);
-
-GALNS_API int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig);
-GALNS_API void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig);
-
-GALNS_API int GALNS_SyncNode(GALNS_Nodestream *nodestream);
+GALNS_API int GALNS_GetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nodeconfig);
+GALNS_API int GALNS_SyncNode(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfig);
 
 GALNS_API void GALNS_CloseNode(GALNS_Nodestream *nodestream);
 

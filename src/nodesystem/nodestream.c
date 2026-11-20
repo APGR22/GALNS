@@ -6,90 +6,127 @@
 #include "../galns.c.h"
 #include "../debug.c.h"
 
-int __GALNS_Internal_ConvertNode2Bin(void *dst, GALNS_Nodestream *nodestream)
+int __GALNS_Internal_ConvertNodeConfig2Bin(
+    void *dst,
+    GALNS_NodeConfig *nodeconfig,
+    GALNS_Nodesystem *nodesystem
+)
 {
     if (!dst) return -1;
-    if (!nodestream) return -2;
+    if (!nodeconfig) return -2;
+    if (!nodesystem) return -3;
 
     off_t offset = 0;
     size16_t member_size = 0;
 
-    member_size = sizeof(nodestream->node.system_flags);
-    memcpy(dst + offset, &(nodestream->node.system_flags), member_size);
+    member_size = nodesystem->header.max_node_flags_size;
+    memcpy(dst + offset, nodeconfig->flags, member_size);
     offset += member_size;
 
-    member_size = nodestream->nodesystem->header.max_node_flags_size;
-    memcpy(dst + offset, nodestream->node.flags, member_size);
+    member_size = sizeof(nodeconfig->data_size);
+    memcpy(dst + offset, &(nodeconfig->data_size), member_size);
     offset += member_size;
 
-    member_size = sizeof(nodestream->node.data_size);
-    memcpy(dst + offset, &(nodestream->node.data_size), member_size);
+    member_size = nodesystem->header.max_node_data_size;
+    memcpy(dst + offset, nodeconfig->data, member_size);
     offset += member_size;
 
-    member_size = nodestream->nodesystem->header.max_node_data_size;
-    memcpy(dst + offset, nodestream->node.data, member_size);
+    member_size = sizeof(nodeconfig->hash);
+    memcpy(dst + offset, nodeconfig->hash, member_size);
     offset += member_size;
 
-    member_size = sizeof(nodestream->node.hash);
-    memcpy(dst + offset, nodestream->node.hash, member_size);
-    offset += member_size;
-
-
-    member_size = sizeof(nodestream->node.next_node_alloc_index);
-    memcpy(dst + offset, &(nodestream->node.next_node_alloc_index), member_size);
-    offset += member_size;
-
-    return 0;
-}
-int __GALNS_Internal_ConvertBin2Node(GALNS_Nodestream *nodestream, void *src)
-{
-    if (!src) return -1;
-    if (!nodestream) return -2;
-
-    off_t offset = 0;
-    size16_t member_size = 0;
-
-    member_size = sizeof(nodestream->node.system_flags);
-    memcpy(&(nodestream->node.system_flags), src + offset, member_size);
-    offset += member_size;
-
-    member_size = nodestream->nodesystem->header.max_node_flags_size;
-    memcpy(nodestream->node.flags, src + offset, member_size);
-    offset += member_size;
-
-    member_size = sizeof(nodestream->node.data_size);
-    memcpy(&(nodestream->node.data_size), src + offset, member_size);
-    offset += member_size;
-
-    member_size = nodestream->nodesystem->header.max_node_data_size;
-    memcpy(nodestream->node.data, src + offset, member_size);
-    offset += member_size;
-
-    member_size = sizeof(nodestream->node.hash);
-    memcpy(nodestream->node.hash, src + offset, member_size);
-    offset += member_size;
-
-
-    member_size = sizeof(nodestream->node.next_node_alloc_index);
-    memcpy(&(nodestream->node.next_node_alloc_index), src + offset, member_size);
+    member_size = sizeof(nodeconfig->next_node_alloc_index);
+    memcpy(dst + offset, &(nodeconfig->next_node_alloc_index), member_size);
     offset += member_size;
 
     return 0;
 }
 
-size_t _GALNS_Internal_GetNodeSize(GALNS_Nodesystem *nodesystem)
+int __GALNS_Internal_ConvertNodeInfo2Bin(void *dst, GALNS_NodeInfo *nodeinfo)
 {
-    if (!nodesystem) return 0;
+    if (!dst) return -1;
+    if (!nodeinfo) return -2;
 
-    GALNS_Nodestream *dummy = NULL;
+    off_t offset = 0;
+    size16_t member_size = 0;
+
+    member_size = sizeof(nodeinfo->system_flags);
+    memcpy(dst + offset, &(nodeinfo->system_flags), member_size);
+    offset += member_size;
+
+    return 0;
+}
+
+int __GALNS_Internal_ConvertBin2NodeConfig(
+    GALNS_NodeConfig *nodeconfig,
+    void *src,
+    GALNS_Nodesystem *nodesystem
+)
+{
+    if (!nodeconfig) return -1;
+    if (!src) return -2;
+    if (!nodesystem) return -3;
+
+    off_t offset = 0;
+    size16_t member_size = 0;
+
+    member_size = nodesystem->header.max_node_flags_size;
+    memcpy(nodeconfig->flags, src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodeconfig->data_size);
+    memcpy(&(nodeconfig->data_size), src + offset, member_size);
+    offset += member_size;
+
+    member_size = nodesystem->header.max_node_data_size;
+    memcpy(nodeconfig->data, src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodeconfig->hash);
+    memcpy(nodeconfig->hash, src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodeconfig->next_node_alloc_index);
+    memcpy(&(nodeconfig->next_node_alloc_index), src + offset, member_size);
+    offset += member_size;
+
+    return 0;
+}
+
+int __GALNS_Internal_ConvertBin2NodeInfo(GALNS_NodeInfo *nodeinfo, void *src)
+{
+    if (!nodeinfo) return -1;
+    if (!src) return -2;
+
+    off_t offset = 0;
+    size16_t member_size = 0;
+
+    member_size = sizeof(nodeinfo->system_flags);
+    memcpy(&(nodeinfo->system_flags), src + offset, member_size);
+    offset += member_size;
+
+    return 0;
+}
+
+size_t _GALNS_Internal_GetNodeInfoSize()
+{
+    GALNS_NodeInfo *dummy = NULL;
 
     return 0
-    + sizeof(dummy->node.system_flags)
-    + (nodesystem->header.max_node_flags_size) // flags
-    + sizeof(dummy->node.data_size)
-    + (nodesystem->header.max_node_data_size) // data
-    + sizeof(dummy->node.hash)
-    + sizeof(dummy->node.next_node_alloc_index)
+    + sizeof(dummy->system_flags)
+    ;
+}
+
+size_t _GALNS_Internal_GetNodeConfigSize(GALNS_Nodesystem *nodesystem)
+{
+    GALNS_NodeConfig *dummy = NULL;
+
+    return 0
+    + nodesystem->header.max_node_flags_size // flags
+    + sizeof(dummy->data_size)
+    + nodesystem->header.max_node_data_size // data
+    + sizeof(dummy->hash)
+    + sizeof(dummy->next_node_alloc_index)
     ;
 }
 
@@ -153,35 +190,27 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     /* INIT */
 
     GALNS_Nodestream *nodestream = NULL;
-    unsigned char *node_flags = NULL;
-    char *node_name = NULL;
-    void *node_data = NULL;
     void *bin = NULL;
-    size_t bin_size = _GALNS_Internal_GetNodeSize(nodesystem);
+    size_t bin_size = _GALNS_Internal_GetNodeConfigSize(nodesystem);
+    off64_t offset = GALNS_INTERNAL_START_NODE_OFFSET
+        + (node_index * nodesystem->header.node_size)
+        + GALNS_INTERNAL_NODEINFO_OFFSET;
 
     /* CODE */
 
     nodestream = malloc(sizeof(GALNS_Nodestream));
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream", error);
 
-    node_data = malloc(nodesystem->header.max_node_data_size);
-    if (!node_data) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream data", error);
-
-    node_flags = malloc(nodesystem->header.max_node_flags_size);
-    if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc Nodestream flags", error);
-
     bin = malloc(bin_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
+    if (nodesystem->io_stream.read(offset, bin, bin_size) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read node info", error);
+
     nodestream->nodesystem = nodesystem;
     nodestream->index = node_index;
-    nodestream->node.data = node_data;
-    nodestream->node.flags = node_flags;
 
-    if (nodesystem->io_stream.read(GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodesystem->header.node_size * node_index), bin, bin_size) < 0)
-        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read Node from IO", error);
-
-    __GALNS_Internal_ConvertBin2Node(nodestream, bin);
+    __GALNS_Internal_ConvertBin2NodeInfo(&(nodestream->nodeinfo), bin);
 
     /* CLEANUP */
 
@@ -196,127 +225,75 @@ GALNS_Nodestream *GALNS_OpenNode(GALNS_Nodesystem *nodesystem, GALNS_NodeIndex n
     error:;
 
     if (nodestream) free(nodestream);
-    if (node_flags) free(node_flags);
-    if (node_name) free(node_name);
-    if (node_data) free(node_data);
     if (bin) free(bin);
 
     return NULL;
 }
 
-GALNS_NodeConfig *GALNS_GetNodeConfig(GALNS_Nodestream *nodestream)
-{
-    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", NULL);
-    if (!(nodestream->nodesystem)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", NULL);
-
-    /* INIT */
-
-    GALNS_NodeConfig *nodeconfig = NULL;
-
-    char *node_name = NULL;
-    void *node_data = NULL;
-    void *node_flags = NULL;
-
-    size16_t data_mem_size = nodestream->nodesystem->header.max_node_data_size;
-    size16_t flags_mem_size = nodestream->nodesystem->header.max_node_flags_size;
-
-    size16_t data_size = nodestream->node.data_size;
-
-    /* CODE */
-
-    nodeconfig = malloc(sizeof(GALNS_NodeConfig));
-    if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node config", error);
-
-    node_data = malloc(data_mem_size);
-    if (!node_data) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node data", error);
-
-    node_flags = malloc(flags_mem_size);
-    if (!node_flags) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc node flags", error);
-
-    memcpy(node_data, nodestream->node.data, data_mem_size);
-    memcpy(node_flags, nodestream->node.flags, flags_mem_size);
-
-    /* --- INIT CONST */
-    GALNS_NodeConfig nodeconfig_cache = {
-        .data = node_data,
-        .flags = node_flags,
-
-        .next_node_alloc_index = nodestream->node.next_node_alloc_index,
-
-        .data_mem_size = data_mem_size,
-        .flags_mem_size = flags_mem_size,
-
-        .data_size = data_size
-    };
-
-    memcpy(nodeconfig, &nodeconfig_cache, sizeof(GALNS_NodeConfig));
-
-    /* RETURN IF SUCCESS */
-
-    return nodeconfig;
-
-    error:;
-
-    if (nodeconfig) free(nodeconfig);
-    if (node_name) free(node_name);
-    if (node_data) free(node_data);
-    if (node_flags) free(node_flags);
-
-    return NULL;
-}
-
-int GALNS_SetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *nodeconfig)
+int GALNS_GetNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nodeconfig)
 {
     if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
     if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
-    if (!nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodeconfig is NULL", -3);
-
-    size16_t data_size = nodeconfig->data_size;
-    if (data_size > nodestream->nodesystem->header.max_node_data_size)
-    {
-        data_size = nodestream->nodesystem->header.max_node_data_size;
-    }
-
-    nodestream->node.data_size = data_size;
-
-    memcpy(nodestream->node.data, nodeconfig->data, data_size);
-    memcpy(nodestream->node.flags, nodeconfig->flags, nodestream->nodesystem->header.max_node_flags_size);
-
-    nodestream->node.next_node_alloc_index = nodeconfig->next_node_alloc_index;
-
-    return 0;
-}
-
-void GALNS_ReleaseNodeConfig(GALNS_NodeConfig *nodeconfig)
-{
-    if (!nodeconfig) return;
-
-    if (nodeconfig->data) free(nodeconfig->data);
-    if (nodeconfig->flags) free(nodeconfig->flags);
-
-    free(nodeconfig);
-}
-
-int GALNS_SyncNode(GALNS_Nodestream *nodestream)
-{
-    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
-    if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
+    if (!dst_nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: dst_nodeconfig is NULL", -3);
+    if (!(dst_nodeconfig->data)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: data in dst_nodeconfig is NULL", -4);
+    if (!(dst_nodeconfig->flags)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: flags in dst_nodeconfig is NULL", -5);
 
     /* INIT */
 
     void *bin = NULL;
-    size_t node_size = nodestream->nodesystem->header.node_size;
-    off64_t offset = GALNS_INTERNAL_MAX_NODESYSTEM_HEADER + (nodestream->index * node_size);
+    size_t bin_size = _GALNS_Internal_GetNodeConfigSize(nodestream->nodesystem);
+    off64_t offset = GALNS_INTERNAL_START_NODE_OFFSET
+        + (nodestream->index * nodestream->nodesystem->header.node_size)
+        + GALNS_INTERNAL_NODECONFIG_OFFSET;
 
     /* CODE */
 
-    bin = malloc(node_size);
+    bin = malloc(bin_size);
     if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
 
-    __GALNS_Internal_ConvertNode2Bin(bin, nodestream);
+    if (nodestream->nodesystem->io_stream.read(offset, bin, bin_size) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to read node config", error);
 
-    if (nodestream->nodesystem->io_stream.write(offset, bin, node_size) < 0)
-        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write Node to IO", error);
+    __GALNS_Internal_ConvertBin2NodeConfig(dst_nodeconfig, bin, nodestream->nodesystem);
+
+    /* CLEANUP */
+
+    free(bin);
+
+    /* RETURN IF SUCCESS */
+
+    return 0;
+
+    /* ERROR */
+
+    error:;
+
+    return -100;
+}
+
+int GALNS_SyncNode(GALNS_Nodestream *nodestream, GALNS_NodeConfig *src_nodeconfig)
+{
+    if (!nodestream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodestream is NULL", -1);
+    if (!nodestream->nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem in nodestream is NULL", -2);
+    if (!src_nodeconfig) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: dst_nodeconfig is NULL", -3);
+
+    /* INIT */
+
+    void *bin = NULL;
+    size_t bin_size = nodestream->nodesystem->header.node_size;
+    off64_t offset = GALNS_INTERNAL_START_NODE_OFFSET
+        + (nodestream->index * bin_size)
+        + GALNS_INTERNAL_NODECONFIG_OFFSET;
+
+    /* CODE */
+
+    bin = malloc(bin_size);
+    if (!bin) GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to malloc binary object", error);
+
+    __GALNS_Internal_ConvertNodeConfig2Bin(bin, src_nodeconfig, nodestream->nodesystem);
+
+    if (nodestream->nodesystem->io_stream.write(offset, bin, bin_size) < 0)
+        GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to write node config to IO", error);
 
     /* CLEANUP */
 
@@ -339,7 +316,5 @@ void GALNS_CloseNode(GALNS_Nodestream *nodestream)
 {
     if (!nodestream) return;
 
-    free(nodestream->node.flags);
-    free(nodestream->node.data);
     free(nodestream);
 }

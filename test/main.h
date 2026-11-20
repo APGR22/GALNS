@@ -17,6 +17,9 @@ int __io_fd = -1;
 FILE *__io_file = NULL;
 #endif
 
+#define DATA_ALLOC_SIZE 512
+#define FLAGS_SIZE sizeof(unsigned int)
+
 int _io_open(const char *filename, GALNS_IO_OPENMODE mode)
 {
 #ifdef GALNS_PLATFORM_WINDOWS

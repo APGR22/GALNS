@@ -22,8 +22,8 @@ int main()
     GALNS_Nodesystem *nodesystem = GALNS_CreateNodesystem(
         &io_stream,
         ".dumptest/test.galns",
-        512,
-        32,
+        DATA_ALLOC_SIZE,
+        FLAGS_SIZE,
         1024
     );
     if (!nodesystem)
@@ -68,27 +68,44 @@ int main()
         return -1;
     }
 
+    puts("LOG: Setup Node 0 Config");
+    GALNS_NodeConfig node0_config;
+    memset(&node0_config, 0, sizeof(node0_config));
+
+    node0_config.data = malloc(DATA_ALLOC_SIZE);
+    if (!(node0_config.data))
+    {
+        puts("ERROR: Failed to malloc data\n");
+
+        GALNS_Quit();
+        return -1;
+    }
+    node0_config.flags = malloc(FLAGS_SIZE);
+    if (!(node0_config.flags))
+    {
+        puts("ERROR: Failed to malloc flags\n");
+
+        GALNS_Quit();
+        return -1;
+    }
+
     puts("LOG: Get Node 0 Config");
-    GALNS_NodeConfig *node0_config = GALNS_GetNodeConfig(node0);
+    GALNS_GetNodeConfig(node0, &node0_config);
+
+    printf("--- data_size node 0: %u\n", node0_config.data_size);
 
     puts("LOG: Write random bytes to Node 0");
-    node0_config->data_size = node0_config->data_mem_size;
-    for (uint64_t index = 0; index < node0_config->data_size; index++)
+    node0_config.data_size = DATA_ALLOC_SIZE;
+    for (uint64_t index = 0; index < node0_config.data_size; index++)
     {
-        ((unsigned char *)node0_config->data)[index] = index % 256;
+        ((unsigned char *)node0_config.data)[index] = index % 256;
     }
 
     puts("LOG: Set Next Node 0 Alloc Index");
-    node0_config->next_node_alloc_index = 1;
-
-    puts("LOG: Set Node 0 Config");
-    GALNS_SetNodeConfig(node0, node0_config);
-
-    puts("LOG: Release Node 0 Config");
-    GALNS_ReleaseNodeConfig(node0_config);
+    node0_config.next_node_alloc_index = 1;
 
     puts("LOG: Sync Node 0 to IO");
-    if (GALNS_SyncNode(node0) < 0)
+    if (GALNS_SyncNode(node0, &node0_config) < 0)
     {
         printf("ERROR: %s\n", GALNS_GetErrorMsg());
 
@@ -98,6 +115,10 @@ int main()
 
     puts("LOG: Close Node 0");
     GALNS_CloseNode(node0);
+
+    puts("LOG: Cleanup Node 0 Config");
+    free(node0_config.data);
+    free(node0_config.flags);
 
     puts("LOG: Sync Node Header to IO");
     if (GALNS_SyncNodeHeader(nodesystem) < 0)
