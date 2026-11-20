@@ -211,6 +211,8 @@ int GALNS_ReadNodeConfig(GALNS_Nodestream *nodestream, GALNS_NodeConfig *dst_nod
 
     error:;
 
+    if (bin) free(bin);
+
     return -100;
 }
 
