@@ -19,6 +19,10 @@ int __GALNS_Internal_ConvertNodeConfig2Bin(
     off_t offset = 0;
     size16_t member_size = 0;
 
+    member_size = sizeof(nodeconfig->prev_node_alloc_index);
+    memcpy(dst + offset, &(nodeconfig->prev_node_alloc_index), member_size);
+    offset += member_size;
+
     member_size = nodesystem->header.max_node_flags_size;
     memcpy(dst + offset, nodeconfig->flags, member_size);
     offset += member_size;
@@ -55,6 +59,10 @@ int __GALNS_Internal_ConvertBin2NodeConfig(
     off_t offset = 0;
     size16_t member_size = 0;
 
+    member_size = sizeof(nodeconfig->prev_node_alloc_index);
+    memcpy(&(nodeconfig->prev_node_alloc_index), src + offset, member_size);
+    offset += member_size;
+
     member_size = nodesystem->header.max_node_flags_size;
     memcpy(nodeconfig->flags, src + offset, member_size);
     offset += member_size;
@@ -83,6 +91,7 @@ size_t _GALNS_Internal_GetNodeConfigSize(GALNS_Nodesystem *nodesystem)
     GALNS_NodeConfig *dummy = NULL;
 
     return 0
+    + sizeof(dummy->prev_node_alloc_index)
     + nodesystem->header.max_node_flags_size // flags
     + sizeof(dummy->data_size)
     + nodesystem->header.max_node_data_size // data

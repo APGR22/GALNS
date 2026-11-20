@@ -5,6 +5,7 @@
 #include "../macro.h"
 #include "../type.h"
 
+#define GALNS_NULL_PREV_ALLOC_NODE_INDEX UINT32_MAX
 #define GALNS_NULL_NEXT_ALLOC_NODE_INDEX 0
 
 typedef struct GALNS_Nodestream GALNS_Nodestream;
@@ -15,6 +16,7 @@ typedef struct GALNS_NodeConfig
     void *data;
     void *flags;
 
+    GALNS_NodeIndex prev_node_alloc_index;
     GALNS_NodeIndex next_node_alloc_index;
 
     size16_t data_size;

@@ -105,6 +105,9 @@ int main()
         return -1;
     }
 
+    puts("LOG: Set Prev Node 0 Alloc Index");
+    node0_config.prev_node_alloc_index = GALNS_NULL_PREV_ALLOC_NODE_INDEX;
+
     puts("LOG: Set flags");
     uint32_t temp_hash = 1;
     memcpy(node0_config.flags, &temp_hash, FLAGS_SIZE);

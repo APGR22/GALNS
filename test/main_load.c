@@ -89,6 +89,9 @@ int main()
     puts("LOG: Read Node 0 Config");
     GALNS_ReadNodeConfig(node0, &node0_config);
 
+    puts("LOG: Get Prev Node 0 Alloc Index");
+    printf("Test: prev_node_alloc_index is %u\n", node0_config.prev_node_alloc_index);
+
     puts("LOG: Read Node 0 flags");
     uint32_t temp_flags;
     memcpy(&temp_flags, node0_config.flags, FLAGS_SIZE);
