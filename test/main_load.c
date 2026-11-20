@@ -61,14 +61,6 @@ int main()
     GALNS_NodeConfig node0_config;
     memset(&node0_config, 0, sizeof(node0_config));
 
-    node0_config.data = malloc(DATA_ALLOC_SIZE);
-    if (!(node0_config.data))
-    {
-        puts("ERROR: Failed to malloc data\n");
-
-        GALNS_Quit();
-        return -1;
-    }
     node0_config.flags = malloc(FLAGS_SIZE);
     if (!(node0_config.flags))
     {
@@ -77,9 +69,30 @@ int main()
         GALNS_Quit();
         return -1;
     }
+    node0_config.data = malloc(DATA_ALLOC_SIZE);
+    if (!(node0_config.data))
+    {
+        puts("ERROR: Failed to malloc data\n");
+
+        GALNS_Quit();
+        return -1;
+    }
+    node0_config.hash = malloc(HASH_SIZE);
+    if (!(node0_config.hash))
+    {
+        puts("ERROR: Failed to malloc hash\n");
+
+        GALNS_Quit();
+        return -1;
+    }
 
     puts("LOG: Get Node 0 Config");
     GALNS_GetNodeConfig(node0, &node0_config);
+
+    puts("LOG: Read Node 0 flags");
+    uint32_t temp_flags;
+    memcpy(&temp_flags, node0_config.flags, FLAGS_SIZE);
+    printf("--- Node 0 flags is: %u\n", temp_flags);
 
     puts("LOG: Read Node 0 data");
     printf("--- \n|");
@@ -89,12 +102,21 @@ int main()
     }
     puts("\n---");
 
+    puts("LOG: Read Node 0 Hash");
+    printf("--- \n|");
+    for (uint64_t index = 0; index < HASH_SIZE; index++)
+    {
+        printf("%x|", node0_config.hash[index]);
+    }
+    puts("\n---");
+
     puts("LOG: Get Next Node 0 Alloc Index");
     printf("Test: next_node_alloc_index is %u\n", node0_config.next_node_alloc_index);
 
     puts("LOG: Cleanup Node 0 Config");
-    free(node0_config.data);
     free(node0_config.flags);
+    free(node0_config.data);
+    free(node0_config.hash);
 
     puts("LOG: Close Node 0");
     GALNS_CloseNode(node0);

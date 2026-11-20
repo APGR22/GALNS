@@ -22,6 +22,7 @@ typedef struct GALNS_Internal_NodesystemHeader
 
     size16_t max_node_flags_size;
     size16_t max_node_data_size;
+    size16_t max_node_hash_size;
     size16_t node_size;
     size16_t metadata_size;
 

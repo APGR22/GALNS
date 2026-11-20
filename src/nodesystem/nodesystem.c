@@ -19,6 +19,7 @@ size_t _GALNS_Internal_GetNodesystemHeaderSize()
         + sizeof(dummy->header.is_little_endian)
         + sizeof(dummy->header.max_node_flags_size)
         + sizeof(dummy->header.max_node_data_size)
+        + sizeof(dummy->header.max_node_hash_size)
         + sizeof(dummy->header.node_size)
         + sizeof(dummy->header.metadata_size)
         + sizeof(dummy->header.end_node_index)
@@ -57,6 +58,10 @@ int __GALNS_Internal_ConvertNodesystemHeader2Bin(void *dst, GALNS_Nodesystem *no
 
     member_size = sizeof(nodesystem->header.max_node_data_size);
     memcpy(dst + offset, &(nodesystem->header.max_node_data_size), member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.max_node_hash_size);
+    memcpy(dst + offset, &(nodesystem->header.max_node_hash_size), member_size);
     offset += member_size;
 
     member_size = sizeof(nodesystem->header.node_size);
@@ -112,6 +117,10 @@ int __GALNS_Internal_ConvertBin2NodesystemHeader(GALNS_Nodesystem *nodesystem, v
 
     member_size = sizeof(nodesystem->header.max_node_data_size);
     memcpy(&(nodesystem->header.max_node_data_size), src + offset, member_size);
+    offset += member_size;
+
+    member_size = sizeof(nodesystem->header.max_node_hash_size);
+    memcpy(&(nodesystem->header.max_node_hash_size), src + offset, member_size);
     offset += member_size;
 
     member_size = sizeof(nodesystem->header.node_size);
@@ -200,6 +209,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     const char *filename,
     size16_t node_data_size,
     size16_t node_flags_size,
+    size16_t node_hash_size,
     size16_t metadata_size
 )
 {
@@ -234,6 +244,7 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
     nodesystem->header.is_little_endian = GALNS_IsLittleEndian();
     nodesystem->header.max_node_flags_size = node_flags_size;
     nodesystem->header.max_node_data_size = node_data_size;
+    nodesystem->header.max_node_hash_size = node_hash_size;
     nodesystem->header.node_size = _GALNS_Internal_GetNodeInfoSize() + _GALNS_Internal_GetNodeConfigSize(nodesystem);
     nodesystem->header.metadata_size = metadata_size;
     nodesystem->header.end_node_index = 0;

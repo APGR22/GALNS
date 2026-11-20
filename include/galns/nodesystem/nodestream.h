@@ -11,8 +11,7 @@ typedef struct GALNS_Nodestream GALNS_Nodestream;
 
 typedef struct GALNS_NodeConfig
 {
-    unsigned char hash[GALNS_HASH_SIZE];
-
+    unsigned char *hash;
     void *data;
     void *flags;
 

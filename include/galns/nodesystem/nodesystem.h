@@ -14,6 +14,7 @@ GALNS_API GALNS_Nodesystem *GALNS_CreateNodesystem(
     const char *filename,
     size16_t node_data_size,
     size16_t node_flags_size,
+    size16_t node_hash_size,
     size16_t metadata_size
 );
 

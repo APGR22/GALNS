@@ -19,6 +19,7 @@ FILE *__io_file = NULL;
 
 #define DATA_ALLOC_SIZE 512
 #define FLAGS_SIZE sizeof(unsigned int)
+#define HASH_SIZE 64
 
 int _io_open(const char *filename, GALNS_IO_OPENMODE mode)
 {
