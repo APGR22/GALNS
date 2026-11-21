@@ -12,11 +12,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-typedef enum GALNS_IO_OPENMODE
-{
-    GALNS_IO_OPENMODE_NEW,
-    GALNS_IO_OPENMODE_LOAD,
-} GALNS_IO_OPENMODE;
+#define GALNS_IO_OPENMODE_NEW 0
+#define GALNS_IO_OPENMODE_LOAD 1
+
+typedef int GALNS_IO_OPENMODE;
 
 typedef struct GALNS_IOInterface
 {
