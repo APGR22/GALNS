@@ -19,6 +19,8 @@ int GALNS_Init()
 
     if (!__galns_debug_msg) free(__galns_debug_msg);
     if (!__galns_hash_md) EVP_MD_free(__galns_hash_md);
+
+    return -10;
 }
 
 void GALNS_Quit()
