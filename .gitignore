@@ -3,6 +3,8 @@ git configs.txt
 example
 *.exe
 *.elf
+*.dll
+*.so
 .trash
 configs.txt
 .dumptest
