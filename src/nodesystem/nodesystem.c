@@ -282,7 +282,11 @@ GALNS_Nodesystem *GALNS_CreateNodesystem(
 
 GALNS_Nodesystem *GALNS_LoadNodesystem(
     const GALNS_IOInterface *io_stream,
-    const char *filename
+    const char *filename,
+    size16_t *dst_node_data_size,
+    size16_t *dst_node_flags_size,
+    size16_t *dst_node_hash_size,
+    size16_t *dst_metadata_size
 )
 {
     if (!io_stream) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: io_stream is NULL", NULL);
@@ -338,6 +342,11 @@ GALNS_Nodesystem *GALNS_LoadNodesystem(
     if (memcmp(nodesystem->header.header_hash, header_hash_verify, GALNS_HASH_SIZE) != 0)
         GALNS_INTERNAL_DEBUG_ERROR_GOTO("Failed to verify Nodesystem header", error);
 
+    if (dst_node_data_size) *dst_node_data_size = nodesystem->header.max_node_data_size;
+    if (dst_node_flags_size) *dst_node_flags_size = nodesystem->header.max_node_flags_size;
+    if (dst_node_hash_size) *dst_node_hash_size = nodesystem->header.max_node_hash_size;
+    if (dst_metadata_size) *dst_metadata_size = nodesystem->header.metadata_size;
+
     /* CLEANUP */
 
     free(bin);
@@ -366,15 +375,10 @@ GALNS_NodeIndexOrError GALNS_GetEndNodeIndex(GALNS_Nodesystem *nodesystem)
     return nodesystem->header.end_node_index;
 }
 
-void *GALNS_GetNodesystemMetadata(GALNS_Nodesystem *nodesystem, size_t *dst_metadata_size)
+void *GALNS_GetNodesystemMetadata(GALNS_Nodesystem *nodesystem)
 {
     if (!nodesystem) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: nodesystem is NULL", NULL);
     if (!(nodesystem->header.metadata)) GALNS_INTERNAL_DEBUG_ERROR_RETURN("Invalid argument: metadata in nodesystem is NULL", NULL);
-
-    if (dst_metadata_size)
-    {
-        *dst_metadata_size = nodesystem->header.metadata_size;
-    }
 
     return nodesystem->header.metadata;
 }

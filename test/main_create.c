@@ -25,7 +25,7 @@ int main()
         DATA_ALLOC_SIZE,
         FLAGS_SIZE,
         HASH_SIZE,
-        1024
+        HEADER_METADATA_SIZE
     );
     if (!nodesystem)
     {
@@ -36,8 +36,7 @@ int main()
     }
 
     puts("LOG: Get Nodesystem Metadata");
-    size_t metadata_size = 0;
-    unsigned char *metadata = GALNS_GetNodesystemMetadata(nodesystem, &metadata_size);
+    unsigned char *metadata = GALNS_GetNodesystemMetadata(nodesystem);
     if (!metadata)
     {
         printf("ERROR: %s\n", GALNS_GetErrorMsg());
@@ -47,7 +46,7 @@ int main()
     }
 
     puts("LOG: Write to Nodesystem Metadata");
-    for (uint16_t index = 0; index < metadata_size; index++)
+    for (uint16_t index = 0; index < HEADER_METADATA_SIZE; index++)
     {
         metadata[index] = index % 256;
     }

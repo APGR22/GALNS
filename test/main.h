@@ -20,6 +20,7 @@ FILE *__io_file = NULL;
 #define DATA_ALLOC_SIZE 512
 #define FLAGS_SIZE sizeof(unsigned int)
 #define HASH_SIZE 64
+#define HEADER_METADATA_SIZE 1024
 
 int _io_open(const char *filename, GALNS_IO_OPENMODE mode)
 {

@@ -19,7 +19,18 @@ int main()
     io_stream.close = _io_close;
 
     puts("LOG: Load Nodesystem");
-    GALNS_Nodesystem *nodesystem = GALNS_LoadNodesystem(&io_stream, ".dumptest/test.galns");
+    size16_t node_data_size = 0;
+    size16_t node_flags_size = 0;
+    size16_t node_hash_size = 0;
+    size16_t header_metadata_size = 0;
+    GALNS_Nodesystem *nodesystem = GALNS_LoadNodesystem(
+        &io_stream,
+        ".dumptest/test.galns",
+        &node_data_size,
+        &node_flags_size,
+        &node_hash_size,
+        &header_metadata_size
+    );
     if (!nodesystem)
     {
         printf("ERROR: %s (%d)\n", GALNS_GetErrorMsg(), GetLastError());
@@ -27,10 +38,17 @@ int main()
         GALNS_Quit();
         return -1;
     }
+    puts("Test: Check node members size and header metadata size\n---");
+    printf("node data size: %d\nnode flags size: %d\nnode hash size: %d\nheader metadata size: %d\n",
+        node_data_size,
+        node_flags_size,
+        node_hash_size,
+        header_metadata_size
+    );
+    puts("---");
 
     puts("LOG: Get Nodesystem Metadata");
-    size_t metadata_size = 0;
-    unsigned char *metadata = GALNS_GetNodesystemMetadata(nodesystem, &metadata_size);
+    unsigned char *metadata = GALNS_GetNodesystemMetadata(nodesystem);
     if (!metadata)
     {
         printf("ERROR: %s\n", GALNS_GetErrorMsg());
@@ -41,7 +59,7 @@ int main()
 
     puts("LOG: Read Nodesystem Metadata");
     printf("---\n|");
-    for (uint16_t index = 0; index < metadata_size; index++)
+    for (uint16_t index = 0; index < header_metadata_size; index++)
     {
         printf("%x|", metadata[index]);
     }
@@ -61,7 +79,7 @@ int main()
     GALNS_NodeConfig node0_config;
     memset(&node0_config, 0, sizeof(node0_config));
 
-    node0_config.flags = malloc(FLAGS_SIZE);
+    node0_config.flags = malloc(node_flags_size);
     if (!(node0_config.flags))
     {
         puts("ERROR: Failed to malloc flags\n");
@@ -69,7 +87,7 @@ int main()
         GALNS_Quit();
         return -1;
     }
-    node0_config.data = malloc(DATA_ALLOC_SIZE);
+    node0_config.data = malloc(node_data_size);
     if (!(node0_config.data))
     {
         puts("ERROR: Failed to malloc data\n");
@@ -77,7 +95,7 @@ int main()
         GALNS_Quit();
         return -1;
     }
-    node0_config.hash = malloc(HASH_SIZE);
+    node0_config.hash = malloc(node_hash_size);
     if (!(node0_config.hash))
     {
         puts("ERROR: Failed to malloc hash\n");
@@ -94,12 +112,12 @@ int main()
 
     puts("LOG: Get Node 0 flags");
     uint32_t temp_flags;
-    memcpy(&temp_flags, node0_config.flags, FLAGS_SIZE);
+    memcpy(&temp_flags, node0_config.flags, node_flags_size);
     printf("--- Node 0 flags is: %u\n", temp_flags);
 
     puts("LOG: Read Node 0 data");
     printf("--- \n|");
-    for (uint64_t index = 0; index < node0_config.data_size; index++)
+    for (uint16_t index = 0; index < node0_config.data_size; index++)
     {
         printf("%x|", ((unsigned char *) node0_config.data)[index]);
     }
@@ -107,7 +125,7 @@ int main()
 
     puts("LOG: Read Node 0 Hash");
     printf("--- \n|");
-    for (uint64_t index = 0; index < HASH_SIZE; index++)
+    for (uint16_t index = 0; index < node_hash_size; index++)
     {
         printf("%x|", node0_config.hash[index]);
     }
